@@ -488,49 +488,42 @@ function applyData(data){
   if(!data||!data.ok)return;
   const t=data.tickers;
 
-  // BTC
+  function setPriceCard(sym,priceId,changeId){
+    if(!t[sym])return;
+    const d=t[sym];
+    document.getElementById(priceId).textContent=fmt(d.lastPrice);
+    const pct=parseFloat(d.price24hPcnt)*100;
+    const el=document.getElementById(changeId);
+    el.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'%';
+    el.className='price-chg '+(pct>=0?'up':'dn');
+  }
+
+  setPriceCard('BTCUSDT','btcPrice','btcChange');
+  setPriceCard('SOLUSDT','solPrice','solChange');
+  setPriceCard('ETHUSDT','ethPrice','ethChange');
+
+  // BTC资金费率
   if(t.BTCUSDT){
-    const b=t.BTCUSDT;
-    document.getElementById('btcPrice').textContent=fmt(b.lastPrice);
-    const bel=document.getElementById('btcChange');
-    bel.textContent=(b.price24hPcnt>=0?'+':'')+b.price24hPcnt.toFixed(2)+'%';
-    bel.className='price-chg '+(b.price24hPcnt>=0?'up':'dn');
-    // 资金费率
-    const bfr=b.fundingRate;
+    const bfr=parseFloat(t.BTCUSDT.fundingRate);
     const bfrEl=document.getElementById('btcFr');
     bfrEl.textContent=fmtFR(bfr);
     bfrEl.className='price-val '+(bfr>=0?'up':'dn');
     document.getElementById('btcFrSig').textContent=frSig(bfr);
-    // 核心指标卡片同步
     document.getElementById('frCardVal').textContent=fmtFR(bfr);
     document.getElementById('frCardSig').textContent=frSig(bfr);
   }
 
-  // SOL
+  // SOL资金费率
   if(t.SOLUSDT){
-    const s=t.SOLUSDT;
-    document.getElementById('solPrice').textContent=fmt(s.lastPrice);
-    const sel=document.getElementById('solChange');
-    sel.textContent=(s.price24hPcnt>=0?'+':'')+s.price24hPcnt.toFixed(2)+'%';
-    sel.className='price-chg '+(s.price24hPcnt>=0?'up':'dn');
-    const sfr=s.fundingRate;
+    const sfr=parseFloat(t.SOLUSDT.fundingRate);
     const sfrEl=document.getElementById('solFr');
     sfrEl.textContent=fmtFR(sfr);
     sfrEl.className='price-val '+(sfr>=0?'up':'dn');
     document.getElementById('solFrSig').textContent=frSig(sfr);
   }
 
-  // ETH
-  if(t.ETHUSDT){
-    const e=t.ETHUSDT;
-    document.getElementById('ethPrice').textContent=fmt(e.lastPrice);
-    const eel=document.getElementById('ethChange');
-    eel.textContent=(e.price24hPcnt>=0?'+':'')+e.price24hPcnt.toFixed(2)+'%';
-    eel.className='price-chg '+(e.price24hPcnt>=0?'up':'dn');
-  }
-
-  // 更新时间
-  const now=new Date(data.timestamp);
+  // 更新时间（字段是ts不是timestamp）
+  const now=new Date(data.ts);
   document.getElementById('updateTime').textContent=
     '更新于 '+now.toLocaleTimeString('zh-CN',{hour12:false});
 }
