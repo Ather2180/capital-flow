@@ -133,13 +133,13 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Noto San
 .acard.risk-off{border-left:3px solid var(--off)}
 .acard.risk-on{border-left:3px solid var(--on)}
 .acard.neutral{border-left:3px solid var(--neu)}
-.acat{font-size:9px;color:var(--tx3);letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:2px}
-.aname{font-size:12px;font-weight:500;margin-bottom:5px}
-.abadge{display:inline-block;font-size:9px;padding:2px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace}
+.acat{font-size:11px;color:var(--tx3);letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:2px}
+.aname{font-size:15px;font-weight:500;margin-bottom:6px}
+.abadge{display:inline-block;font-size:12px;padding:3px 8px;border-radius:3px;font-family:'JetBrains Mono',monospace}
 .b-off{background:var(--off-bg);color:var(--off)}
 .b-on{background:var(--on-bg);color:var(--on)}
 .b-n{background:var(--neu-bg);color:var(--neu)}
-.adesc{font-size:10px;color:var(--tx3);margin-top:4px}
+.adesc{font-size:12px;color:var(--tx3);margin-top:4px}
 .awt{display:flex;gap:2px;margin-top:5px}
 .wd{width:5px;height:5px;border-radius:50%;background:var(--bd)}
 .wd.f{background:var(--tx3)}
@@ -263,10 +263,10 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Noto San
         <div class="price-chg fl" id="ethChange">加载中</div>
       </div>
       <div class="price-card">
-        <div class="price-cat">参考价格</div>
+        <div class="price-cat">宏观参考</div>
         <div class="price-name">黄金 XAU/USD</div>
-        <div class="price-val">$4,558</div>
-        <div class="price-chg dn">-1.2% ↓ ⚠背离</div>
+        <div class="price-val" id="xauPrice">--</div>
+        <div class="price-chg fl" id="xauChange">加载中</div>
       </div>
       <div class="price-card full">
         <div class="fr-item">
@@ -289,38 +289,38 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Noto San
   <div class="section">
     <div class="sec-label">核心监控指标 · 点击展开说明</div>
 
-    <div class="mcard risk-off" data-exp="美元是所有资产的定价基础。美元走强时，以美元计价的资产（黄金、BTC、油价）都承压。高油价→通胀→美联储鹰派→美债收益率↑→美元走强→BTC承压，这条传导链是理解当前市场的核心。">
-      <div class="mc-row"><span class="mc-name">美元指数 DXY</span><span class="mc-val dn">偏强 ↑</span></div>
+    <div class="mcard risk-off" id="mc-dxy" data-exp="美元是所有资产的定价基础。美元走强时，以美元计价的资产（黄金、BTC、油价）都承压。高油价→通胀→美联储鹰派→美债收益率↑→美元走强→BTC承压，这条传导链是理解当前市场的核心。">
+      <div class="mc-row"><span class="mc-name">美元指数 DXY</span><span class="mc-val dn">加载中</span></div>
       <div class="mbar-wrap"><div class="mbar bar-off" style="width:68%"></div></div>
-      <div class="mc-sig">压制BTC · 资金回流美元</div>
+      <div class="mc-sig">加载中...</div>
     </div>
-    <div class="mcard risk-off" data-exp="10年期美债收益率是全球无风险利率的锚。收益率越高，BTC等风险资产的相对吸引力越低。当前收益率高于4.5%持续压制风险资产。">
-      <div class="mc-row"><span class="mc-name">美债10Y收益率</span><span class="mc-val dn">&gt;4.5% ↑</span></div>
+    <div class="mcard risk-off" id="mc-bond" data-exp="10年期美债收益率是全球无风险利率的锚。收益率越高，BTC等风险资产的相对吸引力越低。当前收益率高于4.5%持续压制风险资产。">
+      <div class="mc-row"><span class="mc-name">美债10Y收益率</span><span class="mc-val dn">加载中</span></div>
       <div class="mbar-wrap"><div class="mbar bar-off" style="width:72%"></div></div>
-      <div class="mc-sig">高利率锚 · 压制风险资产</div>
+      <div class="mc-sig">加载中...</div>
     </div>
-    <div class="mcard risk-off" data-exp="油价由战争供给中断驱动（非经济需求），是通胀主要来源。需求驱动的油价涨是经济好的信号；供给中断的油价涨是通胀压力信号。当前是后者。">
-      <div class="mc-row"><span class="mc-name">WTI原油</span><span class="mc-val dn">$109 ↑</span></div>
+    <div class="mcard risk-off" id="mc-oil" data-exp="油价由战争供给中断驱动（非经济需求），是通胀主要来源。需求驱动的油价涨是经济好的信号；供给中断的油价涨是通胀压力信号。当前是后者。">
+      <div class="mc-row"><span class="mc-name">WTI原油</span><span class="mc-val dn">加载中</span></div>
       <div class="mbar-wrap"><div class="mbar bar-off" style="width:82%"></div></div>
-      <div class="mc-sig">战争溢价驱动 · 通胀压力</div>
+      <div class="mc-sig">加载中...</div>
     </div>
-    <div class="mcard neutral" data-exp="黄金在战争期间下跌是关键背离信号。正常逻辑：战争→避险→黄金涨。实际下跌说明机构在去杠杆，流动性收缩的力量大于避险需求，是美元走强的副作用。">
-      <div class="mc-row"><span class="mc-name">黄金 XAU</span><span class="mc-val" style="color:var(--neu)">$4558 ↓ ⚠</span></div>
+    <div class="mcard neutral" id="mc-gold" data-exp="黄金在战争期间下跌是关键背离信号。正常逻辑：战争→避险→黄金涨。实际下跌说明机构在去杠杆，流动性收缩的力量大于避险需求，是美元走强的副作用。">
+      <div class="mc-row"><span class="mc-name">黄金 XAU</span><span class="mc-val" style="color:var(--neu)" id="goldCardVal">加载中</span></div>
       <div class="mbar-wrap"><div class="mbar bar-n" style="width:45%"></div></div>
-      <div class="mc-sig">战争期跌 · 重要背离信号</div>
+      <div class="mc-sig" id="goldCardSig">加载中...</div>
     </div>
-    <div class="mcard risk-off" data-exp="VIX衡量美股未来30天隐含波动率。偏高说明市场在为不确定性买保险，资金倾向减少风险敞口，直接压制BTC等高风险资产。">
-      <div class="mc-row"><span class="mc-name">恐慌指数 VIX</span><span class="mc-val dn">偏高</span></div>
+    <div class="mcard risk-off" id="mc-vix" data-exp="VIX衡量美股未来30天隐含波动率。偏高说明市场在为不确定性买保险，资金倾向减少风险敞口，直接压制BTC等高风险资产。">
+      <div class="mc-row"><span class="mc-name">恐慌指数 VIX</span><span class="mc-val dn">加载中</span></div>
       <div class="mbar-wrap"><div class="mbar bar-off" style="width:62%"></div></div>
-      <div class="mc-sig">市场风险规避情绪偏强</div>
+      <div class="mc-sig">加载中...</div>
     </div>
     <div class="mcard risk-off" data-exp="BTC ETF流向是机构真实行为的最直接指标。声明可以造假，资金流动不会。持续流出说明主力资金在撤退，散户买入不足以对冲机构卖出。">
       <div class="mc-row"><span class="mc-name">BTC ETF净流向</span><span class="mc-val dn">流出</span></div>
       <div class="mbar-wrap"><div class="mbar bar-off" style="width:28%"></div></div>
       <div class="mc-sig">机构在减仓 · 主力撤退</div>
     </div>
-    <div class="mcard neutral" data-exp="资金费率接近零说明多空力量均衡，没有极端单边押注。这是少数中性信号，意味着当前下跌不是空头主导的暴力砸盘，而是买盘不足导致的自然回落。">
-      <div class="mc-row"><span class="mc-name">BTC资金费率</span><span class="mc-val" style="color:var(--neu)" id="frCardVal">--</span></div>
+    <div class="mcard neutral" id="mc-fg" data-exp="恐惧贪婪指数综合多个维度衡量市场情绪。0=极度恐惧，100=极度贪婪。极度恐惧往往是买入时机，极度贪婪往往是卖出时机。">
+      <div class="mc-row"><span class="mc-name">恐惧贪婪指数</span><span class="mc-val" style="color:var(--neu)" id="frCardVal">--</span></div>
       <div class="mbar-wrap"><div class="mbar bar-n" style="width:50%"></div></div>
       <div class="mc-sig" id="frCardSig">加载中...</div>
     </div>
@@ -396,48 +396,121 @@ function toggleSummary(){
 function tick(){document.getElementById('clock').textContent=new Date().toLocaleTimeString('zh-CN',{hour12:false})}
 tick();setInterval(tick,1000);
 
+// 资产数据：label和sig会被实时数据覆盖
 const assets=[
-  {cat:'避险',name:'美元 DXY',sig:'risk-off',label:'偏强',w:3,desc:'所有资产定价基础'},
-  {cat:'避险',name:'美债 10Y',sig:'risk-off',label:'高企',w:3,desc:'全球利率锚'},
-  {cat:'避险',name:'美债 2Y',sig:'risk-off',label:'高企',w:2,desc:'短端降息预期'},
-  {cat:'避险',name:'收益率曲线',sig:'neutral',label:'扁平',w:2,desc:'10Y-2Y利差'},
-  {cat:'避险',name:'日元 JPY',sig:'risk-off',label:'避险升值',w:2,desc:'传统避险货币'},
-  {cat:'避险',name:'瑞郎 CHF',sig:'risk-off',label:'偏强',w:1,desc:'欧洲避险首选'},
-  {cat:'避险',name:'黄金 XAU',sig:'neutral',label:'⚠背离',w:3,desc:'战争期却在跌'},
-  {cat:'投资',name:'BTC/USDT',sig:'risk-off',label:'承压',w:3,desc:'加密风向标'},
-  {cat:'投资',name:'ETH/USDT',sig:'risk-off',label:'承压',w:2,desc:'BTC高beta版'},
-  {cat:'投资',name:'SOL/USDT',sig:'neutral',label:'中间位',w:2,desc:'本策略主标的'},
-  {cat:'投资',name:'标普500',sig:'neutral',label:'震荡',w:3,desc:'全球风险晴雨表'},
-  {cat:'投资',name:'纳斯达克',sig:'neutral',label:'震荡',w:3,desc:'科技/流动性'},
-  {cat:'投资',name:'VIX恐慌',sig:'risk-off',label:'偏高',w:2,desc:'恐慌指数'},
-  {cat:'投资',name:'新兴市场',sig:'risk-off',label:'承压',w:1,desc:'风险偏好放大器'},
-  {cat:'投资',name:'BTC ETF',sig:'risk-off',label:'净流出',w:2,desc:'机构真实行为'},
-  {cat:'投资',name:'资金费率',sig:'neutral',label:'+0.01%',w:1,desc:'多空情绪量化'},
-  {cat:'投资',name:'恐惧贪婪',sig:'risk-off',label:'28 恐惧',w:1,desc:'情绪0-100'},
-  {cat:'能源',name:'WTI原油',sig:'risk-off',label:'$109 战争',w:3,desc:'供给中断驱动'},
-  {cat:'能源',name:'布伦特',sig:'risk-off',label:'$112',w:2,desc:'国际定价基准'},
-  {cat:'能源',name:'天然气',sig:'risk-off',label:'高位',w:2,desc:'霍尔木兹相关'},
-  {cat:'能源',name:'铜 Copper',sig:'neutral',label:'震荡',w:2,desc:'经济先行指标'},
-  {cat:'能源',name:'铁矿石',sig:'neutral',label:'震荡',w:1,desc:'中国经济敏感'},
-  {cat:'特殊',name:'信用利差',sig:'risk-off',label:'走扩',w:2,desc:'高收益债风险'},
-  {cat:'特殊',name:'OVX油价波动',sig:'risk-off',label:'高位',w:2,desc:'地缘风险定价'},
-  {cat:'特殊',name:'离岸人民币',sig:'neutral',label:'偏弱',w:2,desc:'中美温度计'},
-  {cat:'特殊',name:'军工ETF',sig:'risk-off',label:'强势',w:1,desc:'冲突持续预期'},
-  {cat:'特殊',name:'Polymarket',sig:'neutral',label:'42%停火',w:2,desc:'群体概率'},
+  {cat:'避险',key:'dxy',   name:'美元 DXY',  sig:'neutral',label:'加载中',w:3,desc:'所有资产定价基础',dataType:'realtime'},
+  {cat:'避险',key:'us10y', name:'美债 10Y',  sig:'neutral',label:'加载中',w:3,desc:'全球利率锚',dataType:'realtime'},
+  {cat:'避险',key:'us2y',  name:'美债 2Y',   sig:'neutral',label:'加载中',w:2,desc:'短端降息预期',dataType:'realtime'},
+  {cat:'避险',key:'yieldCurve',name:'收益率曲线',sig:'neutral',label:'加载中',w:2,desc:'10Y-2Y利差',dataType:'calculated'},
+  {cat:'避险',key:'jpy',   name:'日元 JPY',  sig:'neutral',label:'加载中',w:2,desc:'传统避险货币',dataType:'realtime'},
+  {cat:'避险',key:'chf',   name:'瑞郎 CHF',  sig:'neutral',label:'加载中',w:1,desc:'欧洲避险首选',dataType:'realtime'},
+  {cat:'避险',key:'gold',  name:'黄金 XAU',  sig:'neutral',label:'加载中',w:3,desc:'避险vs去杠杆',dataType:'realtime'},
+  {cat:'投资',key:'btc',   name:'BTC/USDT',  sig:'neutral',label:'加载中',w:3,desc:'加密风向标',dataType:'realtime'},
+  {cat:'投资',key:'eth',   name:'ETH/USDT',  sig:'neutral',label:'加载中',w:2,desc:'BTC高beta版',dataType:'realtime'},
+  {cat:'投资',key:'sol',   name:'SOL/USDT',  sig:'neutral',label:'加载中',w:2,desc:'本策略主标的',dataType:'realtime'},
+  {cat:'投资',key:'sp500', name:'标普500',   sig:'neutral',label:'加载中',w:3,desc:'全球风险晴雨表',dataType:'realtime'},
+  {cat:'投资',key:'nasdaq',name:'纳斯达克',  sig:'neutral',label:'加载中',w:3,desc:'科技/流动性',dataType:'realtime'},
+  {cat:'投资',key:'vix',   name:'VIX恐慌',   sig:'neutral',label:'加载中',w:2,desc:'恐慌指数',dataType:'realtime'},
+  {cat:'投资',key:'em',    name:'新兴市场ETF',sig:'neutral',label:'加载中',w:1,desc:'风险偏好放大器',dataType:'realtime'},
+  {cat:'投资',key:'btcEtf',name:'BTC ETF',   sig:'neutral',label:'每日更新',w:2,desc:'机构真实行为',dataType:'daily'},
+  {cat:'投资',key:'btcFr', name:'BTC资金费率',sig:'neutral',label:'加载中',w:1,desc:'多空情绪量化',dataType:'realtime'},
+  {cat:'投资',key:'fg',    name:'恐惧贪婪',  sig:'neutral',label:'加载中',w:1,desc:'情绪0-100',dataType:'daily'},
+  {cat:'能源',key:'oil',   name:'WTI原油',   sig:'neutral',label:'加载中',w:3,desc:'能源价格锚',dataType:'realtime'},
+  {cat:'能源',key:'brent', name:'布伦特',    sig:'neutral',label:'加载中',w:2,desc:'国际定价基准',dataType:'realtime'},
+  {cat:'能源',key:'natgas',name:'天然气',    sig:'neutral',label:'加载中',w:2,desc:'欧洲能源敏感',dataType:'realtime'},
+  {cat:'能源',key:'copper',name:'铜 Copper', sig:'neutral',label:'加载中',w:2,desc:'经济先行指标',dataType:'realtime'},
+  {cat:'能源',key:'iron',  name:'铁矿石',    sig:'neutral',label:'加载中',w:1,desc:'中国经济敏感',dataType:'realtime'},
+  {cat:'特殊',key:'credit',name:'信用利差',  sig:'neutral',label:'暂无数据',w:2,desc:'高收益债风险',dataType:'unavailable'},
+  {cat:'特殊',key:'silver',name:'白银 XAG',  sig:'neutral',label:'加载中',w:1,desc:'工业+避险双属性',dataType:'realtime'},
+  {cat:'特殊',key:'cnh',   name:'离岸人民币',sig:'neutral',label:'加载中',w:2,desc:'中美温度计',dataType:'realtime'},
+  {cat:'特殊',key:'defense',name:'军工ETF ITA',sig:'neutral',label:'加载中',w:1,desc:'冲突持续预期',dataType:'realtime'},
+  {cat:'特殊',key:'polymarket',name:'Polymarket',sig:'neutral',label:'人工更新',w:2,desc:'群体概率判断',dataType:'manual'},
 ];
 
 const bm={'risk-off':'b-off','risk-on':'b-on','neutral':'b-n'};
+const dtLabel={'realtime':'实时','daily':'每日','calculated':'计算值','unavailable':'暂无','manual':'人工'};
+const dtColor={'realtime':'var(--on)','daily':'var(--neu)','calculated':'var(--tx3)','unavailable':'var(--tx3)','manual':'var(--tx3)'};
+
+function sigFromChange(pct){
+  if(pct===null||pct===undefined)return'neutral';
+  return parseFloat(pct)>=0?'risk-on':'risk-off';
+}
+
+// 全局数据缓存，供renderAssets使用
+let liveAssetData={};
+
+function updateAssetData(data){
+  const m=data.macro||{};
+  const t=data.tickers||{};
+  const fr=data.fundingRates||{};
+  const fg=data.fearGreed;
+
+  function macroLabel(key){
+    const d=m[key];
+    if(!d)return null;
+    const pct=parseFloat(d.change);
+    const arrow=pct>=0?'↑':'↓';
+    return {label:`${parseFloat(d.price).toFixed(2)} ${arrow}${Math.abs(pct).toFixed(2)}%`, sig:sigFromChange(d.change)};
+  }
+  function priceLabel(sym){
+    const d=t[sym];
+    if(!d)return null;
+    const pct=parseFloat(d.price24hPcnt)*100;
+    const arrow=pct>=0?'↑':'↓';
+    return {label:`$${parseFloat(d.lastPrice).toFixed(sym==='BTCUSDT'?0:2)} ${arrow}${Math.abs(pct).toFixed(2)}%`, sig:sigFromChange(d.price24hPcnt)};
+  }
+
+  liveAssetData={
+    dxy:     macroLabel('dxy'),
+    us10y:   m.us10y?{label:parseFloat(m.us10y.price).toFixed(2)+'%'+(parseFloat(m.us10y.change)>=0?' ↑':' ↓'),sig:parseFloat(m.us10y.price)>4.5?'risk-off':'risk-on'}:null,
+    us2y:    m.us2y?{label:(parseFloat(m.us2y.price)/10).toFixed(2)+'%',sig:'neutral'}:null,
+    yieldCurve: m.yieldCurve?{label:m.yieldCurve.price>0?'+'+m.yieldCurve.price+'%':m.yieldCurve.price+'%',sig:m.yieldCurve.price>0?'risk-on':'risk-off'}:null,
+    jpy:     macroLabel('jpy'),
+    chf:     macroLabel('chf'),
+    gold:    macroLabel('gold'),
+    btc:     priceLabel('BTCUSDT'),
+    eth:     priceLabel('ETHUSDT'),
+    sol:     priceLabel('SOLUSDT'),
+    sp500:   macroLabel('sp500'),
+    nasdaq:  macroLabel('nasdaq'),
+    vix:     m.vix?{label:parseFloat(m.vix.price).toFixed(1)+(parseFloat(m.vix.change)>=0?' ↑':' ↓'),sig:parseFloat(m.vix.price)>20?'risk-off':'risk-on'}:null,
+    em:      macroLabel('em'),
+    btcFr:   fr.BTCUSDT!=null?{label:(fr.BTCUSDT>=0?'+':'')+(fr.BTCUSDT*100).toFixed(4)+'%',sig:fr.BTCUSDT>0.01?'risk-on':fr.BTCUSDT<-0.01?'risk-off':'neutral'}:null,
+    fg:      fg?{label:fg.value+' '+fg.label,sig:fg.value<40?'risk-off':fg.value>60?'risk-on':'neutral'}:null,
+    oil:     macroLabel('oil'),
+    brent:   macroLabel('brent'),
+    natgas:  macroLabel('natgas'),
+    copper:  macroLabel('copper'),
+    iron:    macroLabel('iron'),
+    silver:  macroLabel('silver'),
+    cnh:     macroLabel('cnh'),
+    defense: macroLabel('defense'),
+  };
+
+  // 重新渲染当前激活的tab
+  const activeTab=document.querySelector('.atab.active');
+  renderAssets(activeTab?activeTab.dataset.cat:'all');
+}
 
 function renderAssets(cat){
   const list=cat==='all'?assets:assets.filter(a=>a.cat===cat);
-  document.getElementById('assetGrid').innerHTML=list.map(a=>`
-    <div class="acard ${a.sig}">
-      <div class="acat">${a.cat}</div>
+  document.getElementById('assetGrid').innerHTML=list.map(a=>{
+    const live=liveAssetData[a.key];
+    const sig=live?live.sig:a.sig;
+    const label=live?live.label:a.label;
+    const dt=a.dataType||'realtime';
+    return `
+    <div class="acard ${sig}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+        <div class="acat">${a.cat}</div>
+        <div style="font-size:9px;color:${dtColor[dt]};font-family:'JetBrains Mono',monospace">${dtLabel[dt]}</div>
+      </div>
       <div class="aname">${a.name}</div>
-      <span class="abadge ${bm[a.sig]}">${a.label}</span>
+      <span class="abadge ${bm[sig]}">${label}</span>
       <div class="adesc">${a.desc}</div>
       <div class="awt">${[1,2,3].map(i=>`<div class="wd${i<=a.w?' f':''}"></div>`).join('')}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 renderAssets('all');
 
@@ -487,7 +560,11 @@ function setLoading(){
 function applyData(data){
   if(!data||!data.ok)return;
   const t=data.tickers;
+  const m=data.macro||{};
+  const fg=data.fearGreed;
+  const fr=data.fundingRates||{};
 
+  // ── 价格卡片 ──
   function setPriceCard(sym,priceId,changeId){
     if(!t[sym])return;
     const d=t[sym];
@@ -497,12 +574,20 @@ function applyData(data){
     el.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'%';
     el.className='price-chg '+(pct>=0?'up':'dn');
   }
-
   setPriceCard('BTCUSDT','btcPrice','btcChange');
   setPriceCard('SOLUSDT','solPrice','solChange');
   setPriceCard('ETHUSDT','ethPrice','ethChange');
 
-  // BTC资金费率
+  // 黄金价格
+  if(m.gold?.price){
+    document.getElementById('xauPrice').textContent='$'+parseFloat(m.gold.price).toFixed(0);
+    const xauEl=document.getElementById('xauChange');
+    const xauPct=parseFloat(m.gold.change);
+    xauEl.textContent=(xauPct>=0?'+':'')+xauPct.toFixed(2)+'%';
+    xauEl.className='price-chg '+(xauPct>=0?'up':'dn');
+  }
+
+  // ── 资金费率 ──
   if(t.BTCUSDT){
     const bfr=parseFloat(t.BTCUSDT.fundingRate);
     const bfrEl=document.getElementById('btcFr');
@@ -512,8 +597,6 @@ function applyData(data){
     document.getElementById('frCardVal').textContent=fmtFR(bfr);
     document.getElementById('frCardSig').textContent=frSig(bfr);
   }
-
-  // SOL资金费率
   if(t.SOLUSDT){
     const sfr=parseFloat(t.SOLUSDT.fundingRate);
     const sfrEl=document.getElementById('solFr');
@@ -522,11 +605,87 @@ function applyData(data){
     document.getElementById('solFrSig').textContent=frSig(sfr);
   }
 
-  // 更新时间（字段是ts不是timestamp）
+  // ── 核心监控指标卡片动态更新 ──
+  // DXY
+  if(m.dxy){
+    const pct=parseFloat(m.dxy.change);
+    updateMetricCard('mc-dxy',
+      `${parseFloat(m.dxy.price).toFixed(2)} ${pct>=0?'↑':'↓'}`,
+      pct>=0?'dn':'up',
+      pct>=0?'美元走强 · 压制BTC':'美元走弱 · 利好风险资产'
+    );
+  }
+  // 美债10Y
+  if(m.us10y){
+    const yield10=parseFloat(m.us10y.price);
+    updateMetricCard('mc-bond',
+      yield10.toFixed(2)+'%',
+      yield10>4.5?'dn':'up',
+      yield10>4.5?'高利率锚 · 压制风险资产':'利率温和 · 风险资产受益'
+    );
+  }
+  // 油价
+  if(m.oil){
+    const pct=parseFloat(m.oil.change);
+    updateMetricCard('mc-oil',
+      '$'+parseFloat(m.oil.price).toFixed(1)+' '+(pct>=0?'↑':'↓'),
+      pct>=0?'dn':'up',
+      pct>=0?'战争溢价驱动 · 通胀压力':'油价回落 · 通胀压力缓解'
+    );
+  }
+  // VIX
+  if(m.vix){
+    const vix=parseFloat(m.vix.price);
+    updateMetricCard('mc-vix',
+      vix.toFixed(1),
+      vix>20?'dn':'up',
+      vix>30?'极度恐慌':vix>20?'风险规避情绪偏强':'市场情绪平稳'
+    );
+  }
+  // 恐惧贪婪指数
+  if(fg){
+    updateMetricCard('mc-fg',
+      fg.value+' '+fg.label,
+      fg.value<40?'dn':fg.value>60?'up':'fl',
+      fg.value<25?'极度恐惧':fg.value<40?'恐惧':fg.value>75?'极度贪婪':fg.value>60?'贪婪':'中性'
+    );
+  }
+
+  // ── 综合情绪评分 ──
+  if(data.score!=null){
+    const score=data.score;
+    document.getElementById('scoreNum').textContent=score;
+    document.getElementById('scoreNum').style.color=
+      score<35?'var(--off)':score>65?'var(--on)':'var(--neu)';
+    document.getElementById('needle').style.left=score+'%';
+    // 状态文字
+    const stateEl=document.getElementById('stateLabel');
+    if(score<25){stateEl.textContent='⚠ 极度风险规避';stateEl.style.color='var(--off)';}
+    else if(score<45){stateEl.textContent='⚠ 风险规避主导';stateEl.style.color='var(--off)';}
+    else if(score<55){stateEl.textContent='◎ 市场情绪中性';stateEl.style.color='var(--neu)';}
+    else if(score<75){stateEl.textContent='✓ 风险偏好主导';stateEl.style.color='var(--on)';}
+    else{stateEl.textContent='✓ 极度风险偏好';stateEl.style.color='var(--on)';}
+  }
+
+  // ── 资产全景动态更新 ──
+  updateAssetData(data);
+
+  // ── 更新时间 ──
   const now=new Date(data.ts);
   document.getElementById('updateTime').textContent=
     '更新于 '+now.toLocaleTimeString('zh-CN',{hour12:false});
 }
+
+// 更新指标卡片的值和信号文字
+function updateMetricCard(id, valText, valClass, sigText){
+  const card=document.getElementById(id);
+  if(!card)return;
+  const valEl=card.querySelector('.mc-val');
+  const sigEl=card.querySelector('.mc-sig');
+  if(valEl){valEl.textContent=valText;valEl.className='mc-val '+valClass;}
+  if(sigEl){sigEl.textContent=sigText;}
+}
+
 
 async function fetchRealtime(){
   const btn=document.querySelector('.ref-btn');
