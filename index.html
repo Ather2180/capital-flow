@@ -689,9 +689,12 @@ async function fetchRealtime(){
   if(btn){btn.textContent='↻ 更新中...';btn.disabled=true;}
   setLoading();
   try{
-    const r=await fetch('https://vps.meihuaqianwen.com/api/market',{signal:AbortSignal.timeout(10000)});
+    // 用setTimeout替代AbortSignal.timeout，兼容性更好
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),10000);
+    const r=await fetch('https://vps.meihuaqianwen.com/api/market',{signal:controller.signal});
+    clearTimeout(timer);
     const data=await r.json();
-    // 资产全景单独调用，不依赖applyData是否出错
     try{ updateAssetData(data); }catch(e){ console.error('updateAssetData error:',e); }
     try{ applyData(data); }catch(e){ console.error('applyData error:',e); }
   }catch(e){
