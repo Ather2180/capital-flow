@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#060a0c">
+<title>交易分析师 · SOL/BTC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060a0c;
+  --s1:#0a1014;
+  --s2:#0e1618;
+  --bd:#182028;
+  --bd2:#1e2c38;
+  --acc:#c9a84c;
+  --acc-dim:rgba(201,168,76,0.12);
+  --acc-glow:rgba(201,168,76,0.4);
+  --on:#1a9e72;
+  --off:#d94f4f;
+  --neu:#ba7517;
+  --tx:#cee0e8;
+  --tx2:#6a8c9a;
+  --tx3:#2e4452;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Noto Sans SC',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow:hidden}
+
+/* ── 顶部 header ── */
+.hdr{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  height:52px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  background:rgba(6,10,12,0.92);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--bd);
+}
+.hdr-brand{display:flex;align-items:center;gap:10px}
+.hdr-gem{
+  width:8px;height:8px;
+  background:var(--acc);
+  clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);
+  animation:gem-spin 4s linear infinite;
+}
+@keyframes gem-spin{to{transform:rotate(360deg)}}
+.hdr-title{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--acc);letter-spacing:2px;text-transform:uppercase}
+.hdr-sub{font-size:10px;color:var(--tx3);font-family:var(--mono);margin-left:8px;letter-spacing:1px}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.live-tag{font-family:var(--mono);font-size:10px;color:var(--on);border:1px solid rgba(26,158,114,0.4);padding:3px 8px;border-radius:2px;letter-spacing:1px}
+.live-tag span{display:inline-block;width:5px;height:5px;background:var(--on);border-radius:50%;margin-right:5px;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+.api-key-btn{
+  font-family:var(--mono);font-size:10px;
+  background:transparent;border:1px solid var(--bd2);
+  color:var(--tx2);padding:4px 10px;border-radius:2px;cursor:pointer;
+  letter-spacing:1px;transition:all .15s;
+}
+.api-key-btn:hover{border-color:var(--acc);color:var(--acc)}
+
+/* ── 实时数据条 ── */
+.data-strip{
+  position:fixed;top:52px;left:0;right:0;z-index:190;
+  height:36px;
+  display:flex;align-items:center;
+  padding:0 20px;gap:24px;
+  background:var(--s1);
+  border-bottom:1px solid var(--bd);
+  overflow-x:auto;
+}
+.data-strip::-webkit-scrollbar{display:none}
+.ds-item{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.ds-label{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:1px}
+.ds-val{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--tx)}
+.ds-chg{font-family:var(--mono);font-size:10px}
+.up{color:var(--on)}.dn{color:var(--off)}.fl{color:var(--tx3)}
+.ds-div{width:1px;height:16px;background:var(--bd);flex-shrink:0}
+
+/* ── 主布局 ── */
+.layout{
+  position:fixed;
+  top:88px;left:0;right:0;bottom:0;
+  display:grid;
+  grid-template-columns:380px 1fr;
+}
+
+/* ── 左侧：提示词编辑器 ── */
+.left{
+  border-right:1px solid var(--bd);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.left-hd{
+  padding:12px 16px;
+  border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.left-hd-title{font-family:var(--mono);font-size:10px;color:var(--acc);letter-spacing:2px}
+.gen-btn{
+  font-family:var(--mono);font-size:10px;
+  background:var(--acc-dim);border:1px solid var(--acc);
+  color:var(--acc);padding:4px 12px;border-radius:2px;cursor:pointer;
+  letter-spacing:1px;transition:all .15s;
+}
+.gen-btn:hover{background:var(--acc);color:#000}
+
+.left-body{flex:1;overflow-y:auto;padding:12px}
+.left-body::-webkit-scrollbar{width:3px}
+.left-body::-webkit-scrollbar-track{background:transparent}
+.left-body::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+
+/* 模块卡片 */
+.mod{
+  border:1px solid var(--bd);
+  border-radius:4px;
+  margin-bottom:8px;
+  overflow:hidden;
+}
+.mod-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px;
+  cursor:pointer;
+  background:var(--s2);
+  transition:background .15s;
+  user-select:none;
+}
+.mod-hd:hover{background:var(--bd)}
+.mod-hd-left{display:flex;align-items:center;gap:8px}
+.mod-num{font-family:var(--mono);font-size:9px;color:var(--acc);border:1px solid var(--acc-dim);padding:1px 5px;border-radius:2px}
+.mod-name{font-size:12px;font-weight:500;color:var(--tx)}
+.mod-toggle{font-family:var(--mono);font-size:10px;color:var(--tx3);transition:transform .2s}
+.mod.open .mod-toggle{transform:rotate(180deg)}
+.mod-body{display:none;padding:10px 12px}
+.mod.open .mod-body{display:block}
+
+/* 固定模块标签 */
+.fixed-tag{
+  font-family:var(--mono);font-size:9px;color:var(--tx3);
+  border:1px solid var(--bd2);padding:1px 6px;border-radius:2px;letter-spacing:1px;
+}
+
+/* 可编辑字段 */
+.field{margin-bottom:10px}
+.field-label{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:4px;display:block}
+.field input,.field textarea,.field select{
+  width:100%;
+  background:var(--bg);
+  border:1px solid var(--bd2);
+  color:var(--tx);
+  font-family:var(--mono);
+  font-size:11px;
+  padding:7px 10px;
+  border-radius:3px;
+  outline:none;
+  transition:border-color .15s;
+  resize:vertical;
+}
+.field input:focus,.field textarea:focus{border-color:var(--acc)}
+.field textarea{min-height:60px;line-height:1.5}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* 固定模块预览 */
+.fixed-preview{
+  font-family:var(--mono);font-size:10px;color:var(--tx3);
+  line-height:1.6;background:rgba(0,0,0,0.3);
+  padding:8px;border-radius:3px;
+  border-left:2px solid var(--bd2);
+  max-height:80px;overflow:hidden;
+  position:relative;
+}
+.fixed-preview::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:24px;
+  background:linear-gradient(transparent,var(--s2));
+}
+
+/* ── 右侧：分析界面 ── */
+.right{display:flex;flex-direction:column;overflow:hidden}
+
+/* 问题输入区 */
+.query-area{
+  padding:12px 20px;
+  border-bottom:1px solid var(--bd);
+  flex-shrink:0;
+}
+.query-label{font-family:var(--mono);font-size:9px;color:var(--acc);letter-spacing:2px;margin-bottom:6px}
+.query-row{display:flex;gap:8px;align-items:flex-end}
+.query-input{
+  flex:1;
+  background:var(--s1);
+  border:1px solid var(--bd2);
+  color:var(--tx);
+  font-family:var(--sans);
+  font-size:13px;
+  padding:9px 14px;
+  border-radius:3px;
+  outline:none;
+  resize:none;
+  min-height:40px;
+  max-height:100px;
+  line-height:1.5;
+  transition:border-color .15s;
+}
+.query-input:focus{border-color:var(--acc)}
+.query-input::placeholder{color:var(--tx3)}
+.send-btn{
+  background:var(--acc);
+  border:none;color:#000;
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  padding:9px 18px;border-radius:3px;cursor:pointer;
+  letter-spacing:1px;white-space:nowrap;
+  transition:opacity .15s;
+  flex-shrink:0;
+}
+.send-btn:hover{opacity:.85}
+.send-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* 输出区 */
+.output-area{flex:1;overflow-y:auto;padding:20px}
+.output-area::-webkit-scrollbar{width:3px}
+.output-area::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+
+.output-empty{
+  height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;
+  color:var(--tx3);
+}
+.output-empty-icon{
+  font-size:32px;opacity:.3;
+  font-family:var(--mono);
+}
+.output-empty-text{font-size:12px;font-family:var(--mono);letter-spacing:1px}
+.quick-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
+.quick-btn{
+  font-family:var(--mono);font-size:10px;
+  background:var(--s1);border:1px solid var(--bd2);
+  color:var(--tx2);padding:6px 12px;border-radius:2px;
+  cursor:pointer;letter-spacing:.5px;transition:all .15s;
+}
+.quick-btn:hover{border-color:var(--acc);color:var(--acc)}
+
+/* 输出内容 */
+.output-block{
+  background:var(--s1);
+  border:1px solid var(--bd);
+  border-radius:4px;
+  margin-bottom:16px;
+  overflow:hidden;
+}
+.ob-meta{
+  padding:8px 14px;
+  border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--s2);
+}
+.ob-query{font-size:12px;color:var(--tx2);flex:1}
+.ob-time{font-family:var(--mono);font-size:9px;color:var(--tx3)}
+.ob-content{
+  padding:16px;
+  font-size:13px;
+  line-height:1.8;
+  color:var(--tx);
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+.ob-content.streaming::after{
+  content:'▋';
+  animation:cursor-blink .7s infinite;
+  color:var(--acc);
+}
+@keyframes cursor-blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* 错误块 */
+.ob-error{
+  padding:14px;
+  color:var(--off);
+  font-family:var(--mono);
+  font-size:11px;
+  background:rgba(217,79,79,0.08);
+  border:1px solid rgba(217,79,79,0.2);
+  border-radius:4px;
+  margin-bottom:12px;
+}
+
+/* API Key 弹窗 */
+.modal-bg{
+  display:none;
+  position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;
+}
+.modal-bg.show{display:flex}
+.modal{
+  background:var(--s1);
+  border:1px solid var(--bd2);
+  border-radius:6px;
+  padding:24px;
+  width:380px;
+  max-width:90vw;
+}
+.modal-title{font-family:var(--mono);font-size:12px;color:var(--acc);letter-spacing:2px;margin-bottom:16px}
+.modal-desc{font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:16px}
+.modal input{
+  width:100%;background:var(--bg);border:1px solid var(--bd2);
+  color:var(--tx);font-family:var(--mono);font-size:12px;
+  padding:9px 12px;border-radius:3px;outline:none;margin-bottom:12px;
+}
+.modal input:focus{border-color:var(--acc)}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+.modal-cancel{
+  font-family:var(--mono);font-size:11px;
+  background:transparent;border:1px solid var(--bd2);
+  color:var(--tx2);padding:7px 16px;border-radius:2px;cursor:pointer;
+}
+.modal-save{
+  font-family:var(--mono);font-size:11px;
+  background:var(--acc);border:none;
+  color:#000;font-weight:700;padding:7px 16px;border-radius:2px;cursor:pointer;
+}
+
+/* 响应式：手机版变成上下布局 */
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .left{max-height:45vh}
+  .hdr-sub{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="hdr">
+  <div class="hdr-brand">
+    <div class="hdr-gem"></div>
+    <span class="hdr-title">ANALYST</span>
+    <span class="hdr-sub">SOL/BTC · 地缘政治驱动</span>
+  </div>
+  <div class="hdr-right">
+    <div class="live-tag"><span></span>实时数据</div>
+    <button class="api-key-btn" onclick="showApiModal()">API KEY</button>
+  </div>
+</header>
+
+<!-- 实时数据条 -->
+<div class="data-strip">
+  <div class="ds-item">
+    <span class="ds-label">BTC</span>
+    <span class="ds-val" id="d-btc">--</span>
+    <span class="ds-chg fl" id="d-btc-c">--</span>
+  </div>
+  <div class="ds-div"></div>
+  <div class="ds-item">
+    <span class="ds-label">SOL</span>
+    <span class="ds-val" id="d-sol">--</span>
+    <span class="ds-chg fl" id="d-sol-c">--</span>
+  </div>
+  <div class="ds-div"></div>
+  <div class="ds-item">
+    <span class="ds-label">ETH</span>
+    <span class="ds-val" id="d-eth">--</span>
+    <span class="ds-chg fl" id="d-eth-c">--</span>
+  </div>
+  <div class="ds-div"></div>
+  <div class="ds-item">
+    <span class="ds-label">油价WTI</span>
+    <span class="ds-val" id="d-oil">--</span>
+    <span class="ds-chg fl" id="d-oil-c">--</span>
+  </div>
+  <div class="ds-div"></div>
+  <div class="ds-item">
+    <span class="ds-label">黄金</span>
+    <span class="ds-val" id="d-gold">--</span>
+    <span class="ds-chg fl" id="d-gold-c">--</span>
+  </div>
+  <div class="ds-div"></div>
+  <div class="ds-item">
+    <span class="ds-label">DXY</span>
+    <span class="ds-val" id="d-dxy">--</span>
+    <span class="ds-chg fl" id="d-dxy-c">--</span>
+  </div>
+  <div class="ds-div"></div>
+  <div class="ds-item">
+    <span class="ds-label">VIX</span>
+    <span class="ds-val" id="d-vix">--</span>
+    <span class="ds-chg fl" id="d-vix-c">--</span>
+  </div>
+  <div class="ds-div"></div>
+  <div class="ds-item">
+    <span class="ds-label">BTC费率</span>
+    <span class="ds-val" id="d-fr">--</span>
+  </div>
+  <div class="ds-div"></div>
+  <div class="ds-item">
+    <span class="ds-label">恐惧贪婪</span>
+    <span class="ds-val" id="d-fg">--</span>
+  </div>
+  <div class="ds-div"></div>
+  <div class="ds-item">
+    <span class="ds-label" id="d-ts" style="letter-spacing:0">--</span>
+  </div>
+</div>
+
+<!-- 主布局 -->
+<div class="layout">
+
+  <!-- 左侧：提示词编辑器 -->
+  <div class="left">
+    <div class="left-hd">
+      <span class="left-hd-title">提示词配置</span>
+      <button class="gen-btn" onclick="copyPrompt()">复制完整提示词</button>
+    </div>
+    <div class="left-body">
+
+      <!-- 模块一：固定公理层 -->
+      <div class="mod" id="mod1">
+        <div class="mod-hd" onclick="toggleMod('mod1')">
+          <div class="mod-hd-left">
+            <span class="mod-num">01</span>
+            <span class="mod-name">基础公理层</span>
+            <span class="fixed-tag">固定</span>
+          </div>
+          <span class="mod-toggle">▾</span>
+        </div>
+        <div class="mod-body">
+          <div class="fixed-preview">川普行为模式：交易型人格，极限施压后必然寻找体面退出...
+伊朗革命卫队：生存驱动，退让=被清算...
+中国支持伊朗：结构性必须，能源安全+地缘博弈...
+以色列真实目标：安全周边，国力有限有底线设计...</div>
+          <div style="margin-top:8px;font-family:var(--mono);font-size:9px;color:var(--tx3)">此模块包含完整公理层，无需编辑</div>
+        </div>
+      </div>
+
+      <!-- 模块二：博弈逻辑层（固定） -->
+      <div class="mod" id="mod2">
+        <div class="mod-hd" onclick="toggleMod('mod2')">
+          <div class="mod-hd-left">
+            <span class="mod-num">02</span>
+            <span class="mod-name">博弈逻辑运算层</span>
+            <span class="fixed-tag">固定</span>
+          </div>
+          <span class="mod-toggle">▾</span>
+        </div>
+        <div class="mod-body">
+          <div class="fixed-preview">五步推理：识别博弈方 → BATNA评估 → 信号真实性过滤
+→ 二阶推理 → 各方下一步最可能行动...</div>
+        </div>
+      </div>
+
+      <!-- 模块三：SOL独立逻辑（固定） -->
+      <div class="mod" id="mod3">
+        <div class="mod-hd" onclick="toggleMod('mod3')">
+          <div class="mod-hd-left">
+            <span class="mod-num">03</span>
+            <span class="mod-name">SOL独立投资逻辑</span>
+            <span class="fixed-tag">固定</span>
+          </div>
+          <span class="mod-toggle">▾</span>
+        </div>
+        <div class="mod-body">
+          <div class="fixed-preview">SOL = 宏观Beta(60%) + SOL独立Alpha(40%)
+Alpenglow升级：12.8秒→150ms，Q2-Q3主网激活
+ETF：周净流入>$3000万=强支撑信号...</div>
+        </div>
+      </div>
+
+      <!-- 模块四：当前市场背景（可编辑） -->
+      <div class="mod open" id="mod4">
+        <div class="mod-hd" onclick="toggleMod('mod4')">
+          <div class="mod-hd-left">
+            <span class="mod-num">04</span>
+            <span class="mod-name">当前市场背景</span>
+            <span style="font-family:var(--mono);font-size:9px;color:var(--on);border:1px solid rgba(26,158,114,0.3);padding:1px 6px;border-radius:2px">可编辑</span>
+          </div>
+          <span class="mod-toggle">▾</span>
+        </div>
+        <div class="mod-body">
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">BTC支撑位</label>
+              <input type="text" id="f-btc-sup" value="$76,000 / $74,000">
+            </div>
+            <div class="field">
+              <label class="field-label">BTC阻力位</label>
+              <input type="text" id="f-btc-res" value="$82,800 / $85,000">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">SOL支撑位</label>
+              <input type="text" id="f-sol-sup" value="$86-87 / $83-84">
+            </div>
+            <div class="field">
+              <label class="field-label">SOL阻力位</label>
+              <input type="text" id="f-sol-res" value="$90-91 / $93-96">
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">当前叙事主线</label>
+            <textarea id="f-narrative" rows="3">美伊谈判进入"最终阶段"，BTC突破$80K触发空头平仓。Moody's下调美国信用评级，SOL Alpenglow升级测试中。</textarea>
+          </div>
+          <div class="field">
+            <label class="field-label">最重要的监控信号</label>
+            <textarea id="f-signals" rows="3">① 伊朗正式回应美国停火框架
+② 油价是否跌破$90（Hormuz开放信号）
+③ BTC是否站稳$82,800
+④ SOL ETF周净流入是否维持$3000万以上</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块五：账户状态（可编辑） -->
+      <div class="mod open" id="mod5">
+        <div class="mod-hd" onclick="toggleMod('mod5')">
+          <div class="mod-hd-left">
+            <span class="mod-num">05</span>
+            <span class="mod-name">账户状态</span>
+            <span style="font-family:var(--mono);font-size:9px;color:var(--on);border:1px solid rgba(26,158,114,0.3);padding:1px 6px;border-radius:2px">可编辑</span>
+          </div>
+          <span class="mod-toggle">▾</span>
+        </div>
+        <div class="mod-body">
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">当前资金（U）</label>
+              <input type="text" id="f-capital" value="162">
+            </div>
+            <div class="field">
+              <label class="field-label">当前仓位</label>
+              <input type="text" id="f-position" value="观望中">
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">最近操作记录</label>
+            <textarea id="f-last-trade" rows="2">$83.5入场，$87.3平仓，盈利+4.6%</textarea>
+          </div>
+          <div class="field">
+            <label class="field-label">内在能量评估（1-10）</label>
+            <input type="text" id="f-energy" value="8 · 状态稳定，执行纪律在线">
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块六：执行原则（固定） -->
+      <div class="mod" id="mod6">
+        <div class="mod-hd" onclick="toggleMod('mod6')">
+          <div class="mod-hd-left">
+            <span class="mod-num">06</span>
+            <span class="mod-name">执行原则 &amp; 入场检查清单</span>
+            <span class="fixed-tag">固定</span>
+          </div>
+          <span class="mod-toggle">▾</span>
+        </div>
+        <div class="mod-body">
+          <div class="fixed-preview">事缓则圆 · 入场精度优先 · 强平价在箱体外
+止盈分批 · 浮盈保护 · 逻辑失效立刻出场
+入场前必须完成8项检查清单...</div>
+        </div>
+      </div>
+
+    </div><!-- /left-body -->
+  </div><!-- /left -->
+
+  <!-- 右侧：分析输出 -->
+  <div class="right">
+    <div class="query-area">
+      <div class="query-label">发送分析请求</div>
+      <div class="query-row">
+        <textarea class="query-input" id="queryInput"
+          placeholder="输入你的问题，例如：分析当前SOL的态势和操作建议..."
+          onkeydown="handleKey(event)" rows="1"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendQuery()">执行分析 →</button>
+      </div>
+    </div>
+    <div class="output-area" id="outputArea">
+      <div class="output-empty" id="emptyState">
+        <div class="output-empty-icon">◆</div>
+        <div class="output-empty-text">ANALYST · 等待指令</div>
+        <div class="quick-btns">
+          <button class="quick-btn" onclick="quickSend('分析当前BTC和SOL的态势，给出操作建议')">态势分析 + 操作建议</button>
+          <button class="quick-btn" onclick="quickSend('基于博弈逻辑，判断美伊谈判接下来最可能的演化路径')">博弈推理</button>
+          <button class="quick-btn" onclick="quickSend('当前risk-on还是risk-off？资金流向判断')">资金流向判断</button>
+          <button class="quick-btn" onclick="quickSend('SOL当前的独立Alpha信号如何？Alpenglow进展影响评估')">SOL独立分析</button>
+          <button class="quick-btn" onclick="quickSend('入场前检查：我想在当前价格做多SOL，请完成8项检查清单')">入场前检查</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /layout -->
+
+<!-- API Key 弹窗 -->
+<div class="modal-bg" id="apiModal">
+  <div class="modal">
+    <div class="modal-title">设置 Claude API Key</div>
+    <div class="modal-desc">API Key 仅保存在本地浏览器，不会上传到任何服务器。<br>获取地址：console.anthropic.com</div>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-api...">
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="hideApiModal()">取消</button>
+      <button class="modal-save" onclick="saveApiKey()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 完整提示词模板（固定部分）──
+const FIXED_PROMPT = `## 【身份定位】
+你是一个地缘政治驱动的加密货币交易分析师，专注于SOL/BTC的波段交易机会。你的分析不依赖通用框架，而是基于用户长期校准的判断公理和博弈逻辑推理。SOL的分析同时结合宏观Beta和SOL独立Alpha两个维度。
+
+## 【模块一：基础公理层】
+
+**川普行为模式**
+川普有自己稳定的信仰与价值观。博弈手段以交易为核心，极限施压后必然寻找体面退出。对局势的认知深刻清醒，最大制约来自队友（以色列+内阁），而非对手。极端威胁优先解读为谈判筹码或国内政治需要，而非真实战争意图，除非有行动层面的佐证。
+
+**伊朗革命卫队逻辑**
+生存驱动而非信仰驱动。双手沾满人民鲜血，退让=被清算，因此强硬是唯一理性选择。殊死一搏中寻找机会是其核心策略。正面摧毁极度困难，更多通过灰色行动表明强硬，同时不真正破坏谈判框架。
+
+**极端威胁解读原则**
+任何极端威胁优先解读为国内政治需要或谈判筹码。真正有信息量的是行动而非声明。
+
+**中国支持伊朗的逻辑**
+结构性必须，不是选择。能源安全+地缘博弈双重绑定。支持会持续但会避免与美国直接冲突。
+
+**以色列的真实目标**
+核心是为自己营造完全安全的周边政治环境。国力有限，对长期大规模冲突有底线设计。
+
+**宏观历史框架**
+当前冲突是先进生产力对落后既得利益的最终围剿阶段。拉锯战是主要形态，但方向逐步明确。伊朗当前政权最终结局：拖延消耗，以国内政变或革命收场。
+
+## 【模块二：博弈逻辑运算层】
+
+收到任何地缘政治或金融情报后，在输出结论前必须完成以下推理：
+1. 识别博弈方真实利益（表面立场 vs 底层需求）
+2. BATNA评估：谁的BATNA更差 → 谁会先让步。当前基准：伊朗BATNA差于美国BATNA → 伊朗终将让步
+3. 信号真实性过滤：高权重=行动层面（军事部署、外交官行程、资金流动、油价变化）；低权重=声明层面（公开威胁、官方表态）
+4. 二阶推理：这个行动是给谁看的？国内受众→降权，谈判对手→中权，市场→高权
+5. 输出：各方下一步最可能行动 + 关键不确定变量
+
+## 【模块三：SOL独立投资逻辑层】
+
+SOL价格 = 宏观Beta（60%）+ SOL独立Alpha（40%）
+
+**Alpha核心催化剂：Alpenglow升级**
+当前确认时间12.8秒→升级后约150毫秒（接近纽交所撮合速度）。98%以上验证节点已投票支持。目前在社区测试集群运行，预计Q2-Q3 2026主网激活。激活=最强单一利好催化剂。
+
+**ETF机构资金门槛**
+周净流入>$3000万 = 强支撑信号。持续流出 = 注意减仓信号。
+
+**真实链上数据（2026 Q1）**
+链上总经济活动$1.1万亿，日活460万，稳定币转账$8327亿（所有链中最高）。Mastercard、Western Union、富兰克林邓普顿在Solana上运行机构级基础设施。
+
+## 【模块四：资金费率信号层】
+
+资金费率解读：
+< 0.01% = 中性均衡
+0.01%-0.05% = 轻度偏多，正常
+> 0.1% = 极度偏多，历史上经常是局部顶部
+负值 = 空头拥挤，往往是底部区域
+
+最强组合：RSI超卖(<30) + 资金费率极负 → 双重确认底部
+最弱组合：RSI超买(>70) + 资金费率极高(>0.1%) → 减仓参考
+
+## 【模块五：执行原则】
+
+1. 事缓则圆：不在箱体中部追单，等边界再出手
+2. 入场精度优先：用入场位置替代宽止损
+3. 强平价要在箱体外
+4. 止盈分批：第一目标出大半，尾仓等确认
+5. 浮盈保护：盈利超过2%时，止损上移至成本价以上
+6. 逻辑失效立刻出场：不因亏损而拖延止损
+7. 每笔出来重新评估：不带上一笔的情绪进下一笔
+
+**入场前8项检查（必须完成）**
+① 当前BTC大方向？② SOL独立信号方向？③ 触发信号是什么？④ 止损在哪里？⑤ 止盈目标？⑥ 风险收益比>1:2？⑦ 资金费率是否有利？⑧ 今天有重要数据窗口？
+
+## 【输出格式要求】
+
+必须按以下结构输出：
+1. 博弈逻辑推理（简洁，3-5条）
+2. 全球资金流向判断（Risk-On/Off，关键信号）
+3. SOL态势概率分布（上行X% / 震荡X% / 下行X%，含触发条件）
+4. 操作建议（方向、入场位、止盈、止损、资金费率状态）
+5. 关键监控信号（立刻重新评估的触发条件）`;
+
+// ── 实时数据 ──
+let liveData = {};
+
+async function fetchLiveData(){
+  try{
+    const r = await fetch('https://vps.meihuaqianwen.com/api/market');
+    const d = await r.json();
+    if(!d.ok) return;
+    liveData = d;
+    updateStrip(d);
+  }catch(e){}
+}
+
+function fmt(p, dec=0){
+  const n = parseFloat(p);
+  if(n > 1000) return '$' + n.toLocaleString('en',{maximumFractionDigits:dec});
+  if(n > 10) return '$' + n.toFixed(2);
+  return '$' + n.toFixed(4);
+}
+function fmtPct(p){
+  const n = parseFloat(p)*100;
+  return (n>=0?'+':'') + n.toFixed(2) + '%';
+}
+function setDs(valId, chgId, price, pct){
+  const ve = document.getElementById(valId);
+  const ce = document.getElementById(chgId);
+  if(ve) ve.textContent = fmt(price);
+  if(ce){
+    ce.textContent = fmtPct(pct);
+    ce.className = 'ds-chg ' + (parseFloat(pct)>=0?'up':'dn');
+  }
+}
+function updateStrip(d){
+  const t = d.tickers || {};
+  const m = d.macro || {};
+  if(t.BTCUSDT) setDs('d-btc','d-btc-c', t.BTCUSDT.lastPrice, t.BTCUSDT.price24hPcnt);
+  if(t.SOLUSDT) setDs('d-sol','d-sol-c', t.SOLUSDT.lastPrice, t.SOLUSDT.price24hPcnt);
+  if(t.ETHUSDT) setDs('d-eth','d-eth-c', t.ETHUSDT.lastPrice, t.ETHUSDT.price24hPcnt);
+  if(m.oil){ document.getElementById('d-oil').textContent='$'+parseFloat(m.oil.price).toFixed(1); const c=document.getElementById('d-oil-c');c.textContent=(parseFloat(m.oil.change)>=0?'+':'')+m.oil.change+'%';c.className='ds-chg '+(parseFloat(m.oil.change)>=0?'up':'dn'); }
+  if(m.gold){ document.getElementById('d-gold').textContent='$'+parseFloat(m.gold.price).toFixed(0); const c=document.getElementById('d-gold-c');c.textContent=(parseFloat(m.gold.change)>=0?'+':'')+m.gold.change+'%';c.className='ds-chg '+(parseFloat(m.gold.change)>=0?'up':'dn'); }
+  if(m.dxy){ document.getElementById('d-dxy').textContent=parseFloat(m.dxy.price).toFixed(2); const c=document.getElementById('d-dxy-c');c.textContent=(parseFloat(m.dxy.change)>=0?'+':'')+m.dxy.change+'%';c.className='ds-chg '+(parseFloat(m.dxy.change)>=0?'up':'dn'); }
+  if(m.vix){ document.getElementById('d-vix').textContent=parseFloat(m.vix.price).toFixed(1); const c=document.getElementById('d-vix-c');c.textContent=(parseFloat(m.vix.change)>=0?'+':'')+m.vix.change+'%';c.className='ds-chg '+(parseFloat(m.vix.change)>=0?'up':'dn'); }
+  if(t.BTCUSDT?.fundingRate){
+    const fr = parseFloat(t.BTCUSDT.fundingRate)*100;
+    const fe = document.getElementById('d-fr');
+    fe.textContent = (fr>=0?'+':'') + fr.toFixed(4)+'%';
+    fe.className = 'ds-val ' + (fr>0.05?'dn':fr<0?'up':'fl');
+  }
+  if(d.fearGreed){
+    const fe = document.getElementById('d-fg');
+    fe.textContent = d.fearGreed.value + ' · ' + d.fearGreed.label;
+    fe.className = 'ds-val ' + (d.fearGreed.value<40?'dn':d.fearGreed.value>60?'up':'fl');
+  }
+  const now = new Date();
+  document.getElementById('d-ts').textContent = '更新 ' + now.toLocaleTimeString('zh-CN',{hour12:false});
+}
+
+fetchLiveData();
+setInterval(fetchLiveData, 60000);
+
+// ── 构建完整提示词 ──
+function buildPrompt(){
+  const t = liveData.tickers || {};
+  const m = liveData.macro || {};
+  const fr = liveData.fundingRates || {};
+  const fg = liveData.fearGreed;
+
+  // 实时数据快照
+  const dataSnap = `
+## 【实时市场数据快照】（${new Date().toLocaleString('zh-CN',{hour12:false})}）
+
+**加密资产**
+- BTC: ${t.BTCUSDT ? '$'+parseFloat(t.BTCUSDT.lastPrice).toFixed(0)+' ('+fmtPct(t.BTCUSDT.price24hPcnt)+')' : '--'}
+- SOL: ${t.SOLUSDT ? '$'+parseFloat(t.SOLUSDT.lastPrice).toFixed(2)+' ('+fmtPct(t.SOLUSDT.price24hPcnt)+')' : '--'}
+- ETH: ${t.ETHUSDT ? '$'+parseFloat(t.ETHUSDT.lastPrice).toFixed(2)+' ('+fmtPct(t.ETHUSDT.price24hPcnt)+')' : '--'}
+- BTC资金费率: ${t.BTCUSDT?.fundingRate ? (parseFloat(t.BTCUSDT.fundingRate)*100).toFixed(4)+'%' : '--'}
+- SOL资金费率: ${t.SOLUSDT?.fundingRate ? (parseFloat(t.SOLUSDT.fundingRate)*100).toFixed(4)+'%' : '--'}
+- 恐惧贪婪指数: ${fg ? fg.value+' ('+fg.label+')' : '--'}
+
+**宏观指标**
+- WTI原油: ${m.oil ? '$'+parseFloat(m.oil.price).toFixed(1)+' ('+m.oil.change+'%)' : '--'}
+- 布伦特: ${m.brent ? '$'+parseFloat(m.brent.price).toFixed(1)+' ('+m.brent.change+'%)' : '--'}
+- 黄金: ${m.gold ? '$'+parseFloat(m.gold.price).toFixed(0)+' ('+m.gold.change+'%)' : '--'}
+- 美元DXY: ${m.dxy ? parseFloat(m.dxy.price).toFixed(2)+' ('+m.dxy.change+'%)' : '--'}
+- 美债10Y: ${m.us10y ? parseFloat(m.us10y.price).toFixed(3)+'%' : '--'}
+- VIX: ${m.vix ? parseFloat(m.vix.price).toFixed(1) : '--'}
+- 标普500: ${m.sp500 ? parseFloat(m.sp500.price).toFixed(0)+' ('+m.sp500.change+'%)' : '--'}
+- 纳斯达克: ${m.nasdaq ? parseFloat(m.nasdaq.price).toFixed(0)+' ('+m.nasdaq.change+'%)' : '--'}`;
+
+  // 用户填写的动态部分
+  const dynamicPart = `
+## 【当前市场背景】（人工更新）
+
+**关键价位**
+- BTC支撑：${document.getElementById('f-btc-sup').value}
+- BTC阻力：${document.getElementById('f-btc-res').value}
+- SOL支撑：${document.getElementById('f-sol-sup').value}
+- SOL阻力：${document.getElementById('f-sol-res').value}
+
+**当前叙事主线**
+${document.getElementById('f-narrative').value}
+
+**最重要的监控信号**
+${document.getElementById('f-signals').value}
+
+## 【账户状态】
+
+- 当前资金：${document.getElementById('f-capital').value}U
+- 当前仓位：${document.getElementById('f-position').value}
+- 最近操作：${document.getElementById('f-last-trade').value}
+- 内在能量：${document.getElementById('f-energy').value}`;
+
+  return FIXED_PROMPT + dataSnap + dynamicPart;
+}
+
+// ── 模块折叠 ──
+function toggleMod(id){
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ── 复制提示词 ──
+async function copyPrompt(){
+  const prompt = buildPrompt();
+  try{
+    await navigator.clipboard.writeText(prompt);
+    const btn = document.querySelector('.gen-btn');
+    btn.textContent = '✓ 已复制';
+    setTimeout(()=>btn.textContent='复制完整提示词', 2000);
+  }catch(e){ alert('复制失败，请手动复制'); }
+}
+
+// ── API Key 管理 ──
+function showApiModal(){
+  const saved = localStorage.getItem('claude_api_key') || '';
+  document.getElementById('apiKeyInput').value = saved ? '已保存（点击修改）' : '';
+  document.getElementById('apiModal').classList.add('show');
+}
+function hideApiModal(){
+  document.getElementById('apiModal').classList.remove('show');
+}
+function saveApiKey(){
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if(key && key.startsWith('sk-ant')){
+    localStorage.setItem('claude_api_key', key);
+    hideApiModal();
+    const btn = document.querySelector('.api-key-btn');
+    btn.textContent = 'API KEY ✓';
+    btn.style.color = 'var(--on)';
+    btn.style.borderColor = 'var(--on)';
+  } else {
+    alert('请输入有效的 Claude API Key（以 sk-ant 开头）');
+  }
+}
+
+// ── 快捷问题 ──
+function quickSend(text){
+  document.getElementById('queryInput').value = text;
+  sendQuery();
+}
+
+// ── 回车发送 ──
+function handleKey(e){
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    sendQuery();
+  }
+}
+
+// ── 发送查询 ──
+async function sendQuery(){
+  const query = document.getElementById('queryInput').value.trim();
+  if(!query) return;
+
+  const apiKey = localStorage.getItem('claude_api_key');
+  if(!apiKey){
+    showApiModal();
+    return;
+  }
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  btn.textContent = '分析中...';
+
+  // 隐藏空状态
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('queryInput').value = '';
+
+  // 构建消息
+  const systemPrompt = buildPrompt();
+  const now = new Date().toLocaleString('zh-CN',{hour12:false});
+
+  // 创建输出块
+  const block = document.createElement('div');
+  block.className = 'output-block';
+  block.innerHTML = `
+    <div class="ob-meta">
+      <span class="ob-query">${query}</span>
+      <span class="ob-time">${now}</span>
+    </div>
+    <div class="ob-content streaming" id="ob-${Date.now()}"></div>`;
+  const outputArea = document.getElementById('outputArea');
+  outputArea.insertBefore(block, outputArea.firstChild);
+  const contentEl = block.querySelector('.ob-content');
+
+  try{
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: query }],
+        stream: true,
+      }),
+    });
+
+    if(!resp.ok){
+      const err = await resp.json();
+      throw new Error(err.error?.message || `HTTP ${resp.status}`);
+    }
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while(true){
+      const {done, value} = await reader.read();
+      if(done) break;
+      buffer += decoder.decode(value, {stream:true});
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data: ')) continue;
+        const data = line.slice(6);
+        if(data === '[DONE]') continue;
+        try{
+          const j = JSON.parse(data);
+          if(j.type === 'content_block_delta' && j.delta?.text){
+            contentEl.textContent += j.delta.text;
+            outputArea.scrollTop = 0;
+          }
+        }catch(e){}
+      }
+    }
+
+    contentEl.classList.remove('streaming');
+
+  }catch(e){
+    contentEl.classList.remove('streaming');
+    const errDiv = document.createElement('div');
+    errDiv.className = 'ob-error';
+    errDiv.textContent = '错误：' + e.message;
+    block.appendChild(errDiv);
+  }finally{
+    btn.disabled = false;
+    btn.textContent = '执行分析 →';
+  }
+}
+
+// 初始化检查API Key状态
+const savedKey = localStorage.getItem('claude_api_key');
+if(savedKey){
+  const btn = document.querySelector('.api-key-btn');
+  btn.textContent = 'API KEY ✓';
+  btn.style.color = 'var(--on)';
+  btn.style.borderColor = 'var(--on)';
+}
+</script>
+</body>
+</html>
