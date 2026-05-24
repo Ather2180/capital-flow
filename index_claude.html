@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080c0e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>资金流动仪表盘</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c0e;
+  --s1:#0d1518;
+  --s2:#111d21;
+  --bd:#1c2b31;
+  --bd2:#243540;
+  --on:#1D9E75;
+  --on-bg:rgba(29,158,117,0.12);
+  --off:#E24B4A;
+  --off-bg:rgba(226,75,74,0.12);
+  --neu:#BA7517;
+  --neu-bg:rgba(186,117,23,0.12);
+  --tx:#cfe0e5;
+  --tx2:#7a96a0;
+  --tx3:#3d5560;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+  --hdr:52px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Noto Sans SC',sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+
+.hdr{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:calc(var(--hdr) + var(--safe-top));
+  padding-top:var(--safe-top);
+  background:rgba(8,12,14,0.95);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:space-between;
+  padding-left:16px;padding-right:16px;
+}
+.hdr-brand{display:flex;align-items:center;gap:8px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--on);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
+.hdr-title{font-size:14px;font-weight:500;letter-spacing:.5px}
+.hdr-ver{font-size:10px;color:var(--tx3);font-family:'JetBrains Mono',monospace}
+.hdr-right{display:flex;align-items:center;gap:10px}
+#clock{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tx3)}
+.ref-btn{background:transparent;border:1px solid var(--bd2);color:var(--tx2);padding:4px 10px;font-size:11px;border-radius:3px;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .15s}
+.ref-btn:active{border-color:var(--on);color:var(--on)}
+
+.body{
+  position:fixed;left:0;right:0;
+  top:calc(var(--hdr) + var(--safe-top));
+  bottom:var(--safe-bot);
+  overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+}
+
+.section{border-bottom:1px solid var(--bd);padding:14px 16px}
+.sec-label{font-size:14px;color:#d4a843;letter-spacing:2px;font-family:'JetBrains Mono',monospace;margin-bottom:12px;text-transform:uppercase;font-weight:500;text-shadow:0 0 8px rgba(212,168,67,0.6),0 0 20px rgba(212,168,67,0.3)}
+
+/* 1. 综合情绪 */
+.score-wrap{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.score-num{font-family:'JetBrains Mono',monospace;font-size:44px;font-weight:500;color:var(--off);line-height:1;min-width:64px}
+.score-right{flex:1}
+.score-state{font-size:14px;font-weight:500;color:var(--off);margin-bottom:3px}
+.score-desc{font-size:11px;color:var(--tx2);line-height:1.5}
+.score-summary{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:5px 0 2px;-webkit-tap-highlight-color:transparent}
+.summary-text{font-size:13px;color:var(--tx2)}
+.summary-arrow{font-size:16px;color:var(--tx3);transition:transform .25s;line-height:1}
+.score-detail{display:none;margin-top:10px;border:1px solid var(--bd);border-radius:5px;overflow:hidden}
+.score-detail.open{display:block}
+.sd-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-bottom:1px solid var(--bd)}
+.sd-item:last-child{border-bottom:none}
+.sd-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.sd-off .sd-dot{background:var(--off);box-shadow:0 0 5px rgba(226,75,74,.5)}
+.sd-neu .sd-dot{background:var(--neu);box-shadow:0 0 5px rgba(186,117,23,.5)}
+.sd-warn .sd-dot{background:var(--neu);box-shadow:0 0 5px rgba(186,117,23,.5)}
+.sd-name{font-size:13px;font-weight:500;color:var(--tx);flex:0 0 auto;min-width:110px}
+.sd-off .sd-name{color:#e87070}
+.sd-neu .sd-name{color:var(--neu)}
+.sd-warn .sd-name{color:var(--neu)}
+.sd-desc{font-size:11px;color:var(--tx2);line-height:1.5;flex:1}
+.gauge-track{height:5px;background:var(--bd);border-radius:3px;position:relative;margin-bottom:4px;overflow:visible}
+.gauge-fill{position:absolute;inset:0;border-radius:3px;background:linear-gradient(90deg,var(--off) 0%,var(--neu) 50%,var(--on) 100%);opacity:.85}
+.gauge-needle{position:absolute;top:-5px;width:3px;height:15px;background:#fff;border-radius:2px;transform:translateX(-50%);left:28%;box-shadow:0 0 5px rgba(255,255,255,.3)}
+.gauge-labels{display:flex;justify-content:space-between;font-size:14px;font-family:'JetBrains Mono',monospace;margin-top:6px;font-weight:500}
+.gauge-labels span:first-child{color:#E24B4A;text-shadow:0 0 8px rgba(226,75,74,0.7),0 0 20px rgba(226,75,74,0.4)}
+.gauge-labels span:last-child{color:#1D9E75;text-shadow:0 0 8px rgba(29,158,117,0.7),0 0 20px rgba(29,158,117,0.4)}
+.div-warn{background:var(--neu-bg);border:1px solid rgba(186,117,23,.3);border-radius:4px;padding:10px 12px;font-size:14px;color:var(--neu);line-height:1.6;margin-top:10px}
+
+/* 2. 流场 */
+#flowCanvas{display:block;width:100%;height:160px;background:var(--s1);border-radius:5px}
+
+/* 3. 实时行情 */
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.price-card{background:var(--s1);border:1px solid var(--bd);border-radius:5px;padding:10px 12px}
+.price-cat{font-size:9px;color:var(--tx3);letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:2px}
+.price-name{font-size:11px;color:var(--tx2);margin-bottom:5px}
+.price-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:500;color:var(--tx);line-height:1}
+.price-chg{font-family:'JetBrains Mono',monospace;font-size:11px;margin-top:3px}
+.price-sub{font-size:10px;color:var(--tx3);margin-top:2px}
+.up{color:var(--on)}.dn{color:var(--off)}.fl{color:var(--tx3)}
+.price-card.full{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:0}
+.fr-item{padding:10px 12px;border-right:1px solid var(--bd)}
+.fr-item:last-child{border-right:none}
+
+/* 4. 核心指标 */
+.mcard{background:var(--s1);border:1px solid var(--bd);border-radius:5px;padding:11px 12px;margin-bottom:8px;cursor:pointer}
+.mcard:last-child{margin-bottom:0}
+.mcard.risk-off{border-left:3px solid var(--off)}
+.mcard.neutral{border-left:3px solid var(--neu)}
+.mcard.risk-on{border-left:3px solid var(--on)}
+.mc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.mc-name{font-size:12px;font-weight:500}
+.mc-val{font-family:'JetBrains Mono',monospace;font-size:11px}
+.mbar-wrap{height:2px;background:var(--bd);border-radius:2px;margin-bottom:5px;overflow:hidden}
+.mbar{height:100%;border-radius:2px}
+.bar-off{background:var(--off)}.bar-n{background:var(--neu)}.bar-on{background:var(--on)}
+.mc-sig{font-size:10px;color:var(--tx3)}
+.exp-box{margin-top:8px;padding-top:8px;border-top:1px solid var(--bd);font-size:11px;color:var(--tx2);line-height:1.6}
+
+/* 5. 资产全景 */
+.asset-tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;border-bottom:1px solid var(--bd);margin-bottom:12px}
+.asset-tabs::-webkit-scrollbar{display:none}
+.atab{padding:7px 12px;font-size:11px;color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.atab.active{color:var(--tx);border-bottom-color:var(--on)}
+.asset-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.acard{background:var(--s1);border:1px solid var(--bd);border-radius:5px;padding:10px 11px}
+.acard.risk-off{border-left:3px solid var(--off)}
+.acard.risk-on{border-left:3px solid var(--on)}
+.acard.neutral{border-left:3px solid var(--neu)}
+.acat{font-size:11px;color:var(--tx3);letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:2px}
+.aname{font-size:15px;font-weight:500;margin-bottom:6px}
+.abadge{display:inline-block;font-size:12px;padding:3px 8px;border-radius:3px;font-family:'JetBrains Mono',monospace}
+.b-off{background:var(--off-bg);color:var(--off)}
+.b-on{background:var(--on-bg);color:var(--on)}
+.b-n{background:var(--neu-bg);color:var(--neu)}
+.adesc{font-size:12px;color:var(--tx3);margin-top:4px}
+.awt{display:flex;gap:2px;margin-top:5px}
+.wd{width:5px;height:5px;border-radius:50%;background:var(--bd)}
+.wd.f{background:var(--tx3)}
+
+/* 6. 博弈分析 */
+.geo-card{background:var(--s1);border:1px solid var(--bd);border-radius:5px;padding:12px;margin-bottom:8px}
+.geo-card:last-child{margin-bottom:0}
+.geo-title{font-size:9px;color:var(--tx3);letter-spacing:1.5px;font-family:'JetBrains Mono',monospace;margin-bottom:7px;text-transform:uppercase}
+.geo-content{font-size:12px;color:var(--tx2);line-height:1.65}
+.geo-tag{display:inline-block;font-size:9px;padding:2px 6px;border-radius:3px;margin:2px 3px 2px 0;font-family:'JetBrains Mono',monospace}
+.geo-card.warn{background:var(--off-bg);border-color:rgba(226,75,74,.25)}
+.geo-card.warn .geo-title{color:var(--off)}
+.geo-card.warn .geo-content{color:rgba(207,224,229,.8)}
+.bottom-pad{height:32px}
+
+@media(min-width:540px){
+  .body,.hdr{max-width:480px;left:50%;right:auto;transform:translateX(-50%);width:480px}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-brand">
+    <div class="live-dot"></div>
+    <span class="hdr-title">资金流动仪表盘</span>
+    <span class="hdr-ver">v2.1</span>
+  </div>
+  <div class="hdr-right">
+    <span id="clock"></span>
+    <button class="ref-btn" onclick="fetchRealtime()">↻ 刷新</button>
+  </div>
+</header>
+
+<div class="body">
+
+  <!-- 1. 综合情绪指数 -->
+  <div class="section">
+    <div class="sec-label">综合情绪指数</div>
+    <div class="score-wrap">
+      <div class="score-num">28</div>
+      <div class="score-right">
+        <div class="score-state">⚠ 风险规避主导</div>
+        <div class="score-summary" onclick="toggleSummary()" id="scoreSummary">
+          <span class="summary-text">5项偏空 · 1项中性 · 1项背离</span>
+          <span class="summary-arrow" id="summaryArrow">▾</span>
+        </div>
+      </div>
+    </div>
+    <div class="score-detail" id="scoreDetail">
+      <div class="sd-item sd-off">
+        <span class="sd-dot"></span>
+        <span class="sd-name">美元走强</span>
+        <span class="sd-desc">压制以美元计价的所有资产</span>
+      </div>
+      <div class="sd-item sd-off">
+        <span class="sd-dot"></span>
+        <span class="sd-name">油价战争溢价</span>
+        <span class="sd-desc">$109，通胀压力持续，降息推后</span>
+      </div>
+      <div class="sd-item sd-off">
+        <span class="sd-dot"></span>
+        <span class="sd-name">美债收益率高企</span>
+        <span class="sd-desc">&gt;4.5%，无风险利率锚压制风险资产</span>
+      </div>
+      <div class="sd-item sd-off">
+        <span class="sd-dot"></span>
+        <span class="sd-name">VIX偏高</span>
+        <span class="sd-desc">市场风险规避情绪强，资金撤离</span>
+      </div>
+      <div class="sd-item sd-off">
+        <span class="sd-dot"></span>
+        <span class="sd-name">BTC ETF持续流出</span>
+        <span class="sd-desc">机构主力在减仓，买盘不足</span>
+      </div>
+      <div class="sd-item sd-neu">
+        <span class="sd-dot"></span>
+        <span class="sd-name">资金费率中性</span>
+        <span class="sd-desc">多空均衡，非暴力砸盘</span>
+      </div>
+      <div class="sd-item sd-warn">
+        <span class="sd-dot"></span>
+        <span class="sd-name">⚠ 黄金背离</span>
+        <span class="sd-desc">战争期下跌，去杠杆主导而非避险</span>
+      </div>
+    </div>
+    <div class="gauge-track">
+      <div class="gauge-fill"></div>
+      <div class="gauge-needle"></div>
+    </div>
+    <div class="gauge-labels"><span>避险</span><span>投资</span></div>
+    <div class="div-warn">⚡ <strong>背离：</strong>黄金战争期下跌，说明去杠杆主导而非恐慌避险，BTC承压来自流动性收缩</div>
+  </div>
+
+  <!-- 2. 资金流场 -->
+  <div class="section">
+    <div class="sec-label">资金流场 · Risk-On / Risk-Off</div>
+    <canvas id="flowCanvas" role="img" aria-label="资金流动粒子场，当前偏向避险方向"></canvas>
+  </div>
+
+  <!-- 3. 实时行情 -->
+  <div class="section">
+    <div class="sec-label">实时行情 · Bybit · <span id="updateTime" style="color:var(--tx2);font-size:11px;letter-spacing:0;text-shadow:none;font-weight:400">加载中...</span></div>
+    <div class="price-grid">
+      <div class="price-card">
+        <div class="price-cat">永续合约</div>
+        <div class="price-name">BTC/USDT</div>
+        <div class="price-val" id="btcPrice">--</div>
+        <div class="price-chg fl" id="btcChange">加载中</div>
+      </div>
+      <div class="price-card">
+        <div class="price-cat">永续合约</div>
+        <div class="price-name">SOL/USDT</div>
+        <div class="price-val" id="solPrice">--</div>
+        <div class="price-chg fl" id="solChange">加载中</div>
+      </div>
+      <div class="price-card">
+        <div class="price-cat">永续合约</div>
+        <div class="price-name">ETH/USDT</div>
+        <div class="price-val" id="ethPrice">--</div>
+        <div class="price-chg fl" id="ethChange">加载中</div>
+      </div>
+      <div class="price-card">
+        <div class="price-cat">宏观参考</div>
+        <div class="price-name">黄金 XAU/USD</div>
+        <div class="price-val" id="xauPrice">--</div>
+        <div class="price-chg fl" id="xauChange">加载中</div>
+      </div>
+      <div class="price-card full">
+        <div class="fr-item">
+          <div class="price-cat">资金费率</div>
+          <div class="price-name">BTC 8H</div>
+          <div class="price-val" id="btcFr">--</div>
+          <div class="price-sub" id="btcFrSig">加载中</div>
+        </div>
+        <div class="fr-item">
+          <div class="price-cat">资金费率</div>
+          <div class="price-name">SOL 8H</div>
+          <div class="price-val" id="solFr">--</div>
+          <div class="price-sub" id="solFrSig">加载中</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 核心监控指标 -->
+  <div class="section">
+    <div class="sec-label">核心监控指标 · 点击展开说明</div>
+
+    <div class="mcard risk-off" id="mc-dxy" data-exp="美元是所有资产的定价基础。美元走强时，以美元计价的资产（黄金、BTC、油价）都承压。高油价→通胀→美联储鹰派→美债收益率↑→美元走强→BTC承压，这条传导链是理解当前市场的核心。">
+      <div class="mc-row"><span class="mc-name">美元指数 DXY</span><span class="mc-val dn">加载中</span></div>
+      <div class="mbar-wrap"><div class="mbar bar-off" style="width:68%"></div></div>
+      <div class="mc-sig">加载中...</div>
+    </div>
+    <div class="mcard risk-off" id="mc-bond" data-exp="10年期美债收益率是全球无风险利率的锚。收益率越高，BTC等风险资产的相对吸引力越低。当前收益率高于4.5%持续压制风险资产。">
+      <div class="mc-row"><span class="mc-name">美债10Y收益率</span><span class="mc-val dn">加载中</span></div>
+      <div class="mbar-wrap"><div class="mbar bar-off" style="width:72%"></div></div>
+      <div class="mc-sig">加载中...</div>
+    </div>
+    <div class="mcard risk-off" id="mc-oil" data-exp="油价由战争供给中断驱动（非经济需求），是通胀主要来源。需求驱动的油价涨是经济好的信号；供给中断的油价涨是通胀压力信号。当前是后者。">
+      <div class="mc-row"><span class="mc-name">WTI原油</span><span class="mc-val dn">加载中</span></div>
+      <div class="mbar-wrap"><div class="mbar bar-off" style="width:82%"></div></div>
+      <div class="mc-sig">加载中...</div>
+    </div>
+    <div class="mcard neutral" id="mc-gold" data-exp="黄金在战争期间下跌是关键背离信号。正常逻辑：战争→避险→黄金涨。实际下跌说明机构在去杠杆，流动性收缩的力量大于避险需求，是美元走强的副作用。">
+      <div class="mc-row"><span class="mc-name">黄金 XAU</span><span class="mc-val" style="color:var(--neu)" id="goldCardVal">加载中</span></div>
+      <div class="mbar-wrap"><div class="mbar bar-n" style="width:45%"></div></div>
+      <div class="mc-sig" id="goldCardSig">加载中...</div>
+    </div>
+    <div class="mcard risk-off" id="mc-vix" data-exp="VIX衡量美股未来30天隐含波动率。偏高说明市场在为不确定性买保险，资金倾向减少风险敞口，直接压制BTC等高风险资产。">
+      <div class="mc-row"><span class="mc-name">恐慌指数 VIX</span><span class="mc-val dn">加载中</span></div>
+      <div class="mbar-wrap"><div class="mbar bar-off" style="width:62%"></div></div>
+      <div class="mc-sig">加载中...</div>
+    </div>
+    <div class="mcard risk-off" data-exp="BTC ETF流向是机构真实行为的最直接指标。声明可以造假，资金流动不会。持续流出说明主力资金在撤退，散户买入不足以对冲机构卖出。">
+      <div class="mc-row"><span class="mc-name">BTC ETF净流向</span><span class="mc-val dn">流出</span></div>
+      <div class="mbar-wrap"><div class="mbar bar-off" style="width:28%"></div></div>
+      <div class="mc-sig">机构在减仓 · 主力撤退</div>
+    </div>
+    <div class="mcard neutral" id="mc-fg" data-exp="恐惧贪婪指数综合多个维度衡量市场情绪。0=极度恐惧，100=极度贪婪。极度恐惧往往是买入时机，极度贪婪往往是卖出时机。">
+      <div class="mc-row"><span class="mc-name">恐惧贪婪指数</span><span class="mc-val" style="color:var(--neu)" id="frCardVal">--</span></div>
+      <div class="mbar-wrap"><div class="mbar bar-n" style="width:50%"></div></div>
+      <div class="mc-sig" id="frCardSig">加载中...</div>
+    </div>
+  </div>
+
+  <!-- 5. 资产信号全景 -->
+  <!-- 5. 博弈逻辑分析（动态）-->
+  <div class="section">
+    <div class="sec-label">博弈逻辑分析</div>
+    <div id="geoSection">
+      <!-- 由JS动态渲染 -->
+      <div class="geo-card">
+        <div class="geo-title">加载中...</div>
+        <div class="geo-content" style="color:var(--tx3)">正在获取最新情报...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. 资产信号全景 -->
+  <div class="section">
+    <div class="sec-label">资产信号全景 · 27项指标</div>
+    <div class="asset-tabs" id="atabs">
+      <div class="atab active" data-cat="all">全部</div>
+      <div class="atab" data-cat="避险">避险端</div>
+      <div class="atab" data-cat="投资">投资端</div>
+      <div class="atab" data-cat="能源">能源</div>
+      <div class="atab" data-cat="特殊">特殊</div>
+    </div>
+    <div class="asset-grid" id="assetGrid"></div>
+    <div class="bottom-pad"></div>
+  </div>
+
+</div>
+
+<script>
+function toggleSummary(){
+  const detail=document.getElementById('scoreDetail');
+  const arrow=document.getElementById('summaryArrow');
+  const open=detail.classList.toggle('open');
+  arrow.style.transform=open?'rotate(180deg)':'';
+}
+function tick(){document.getElementById('clock').textContent=new Date().toLocaleTimeString('zh-CN',{hour12:false})}
+tick();setInterval(tick,1000);
+
+// 资产数据：label和sig会被实时数据覆盖
+const assets=[
+  {cat:'避险',key:'dxy',   name:'美元 DXY',  sig:'neutral',label:'加载中',w:3,desc:'所有资产定价基础',dataType:'realtime'},
+  {cat:'避险',key:'us10y', name:'美债 10Y',  sig:'neutral',label:'加载中',w:3,desc:'全球利率锚',dataType:'realtime'},
+  {cat:'避险',key:'us2y',  name:'美债 2Y',   sig:'neutral',label:'加载中',w:2,desc:'短端降息预期',dataType:'realtime'},
+  {cat:'避险',key:'yieldCurve',name:'收益率曲线',sig:'neutral',label:'加载中',w:2,desc:'10Y-2Y利差',dataType:'calculated'},
+  {cat:'避险',key:'jpy',   name:'日元 JPY',  sig:'neutral',label:'加载中',w:2,desc:'传统避险货币',dataType:'realtime'},
+  {cat:'避险',key:'chf',   name:'瑞郎 CHF',  sig:'neutral',label:'加载中',w:1,desc:'欧洲避险首选',dataType:'realtime'},
+  {cat:'避险',key:'gold',  name:'黄金 XAU',  sig:'neutral',label:'加载中',w:3,desc:'避险vs去杠杆',dataType:'realtime'},
+  {cat:'投资',key:'btc',   name:'BTC/USDT',  sig:'neutral',label:'加载中',w:3,desc:'加密风向标',dataType:'realtime'},
+  {cat:'投资',key:'eth',   name:'ETH/USDT',  sig:'neutral',label:'加载中',w:2,desc:'BTC高beta版',dataType:'realtime'},
+  {cat:'投资',key:'sol',   name:'SOL/USDT',  sig:'neutral',label:'加载中',w:2,desc:'本策略主标的',dataType:'realtime'},
+  {cat:'投资',key:'sp500', name:'标普500',   sig:'neutral',label:'加载中',w:3,desc:'全球风险晴雨表',dataType:'realtime'},
+  {cat:'投资',key:'nasdaq',name:'纳斯达克',  sig:'neutral',label:'加载中',w:3,desc:'科技/流动性',dataType:'realtime'},
+  {cat:'投资',key:'vix',   name:'VIX恐慌',   sig:'neutral',label:'加载中',w:2,desc:'恐慌指数',dataType:'realtime'},
+  {cat:'投资',key:'em',    name:'新兴市场ETF',sig:'neutral',label:'加载中',w:1,desc:'风险偏好放大器',dataType:'realtime'},
+  {cat:'投资',key:'btcEtf',name:'BTC ETF',   sig:'neutral',label:'每日更新',w:2,desc:'机构真实行为',dataType:'daily'},
+  {cat:'投资',key:'btcFr', name:'BTC资金费率',sig:'neutral',label:'加载中',w:1,desc:'多空情绪量化',dataType:'realtime'},
+  {cat:'投资',key:'fg',    name:'恐惧贪婪',  sig:'neutral',label:'加载中',w:1,desc:'情绪0-100',dataType:'daily'},
+  {cat:'能源',key:'oil',   name:'WTI原油',   sig:'neutral',label:'加载中',w:3,desc:'能源价格锚',dataType:'realtime'},
+  {cat:'能源',key:'brent', name:'布伦特',    sig:'neutral',label:'加载中',w:2,desc:'国际定价基准',dataType:'realtime'},
+  {cat:'能源',key:'natgas',name:'天然气',    sig:'neutral',label:'加载中',w:2,desc:'欧洲能源敏感',dataType:'realtime'},
+  {cat:'能源',key:'copper',name:'铜 Copper', sig:'neutral',label:'加载中',w:2,desc:'经济先行指标',dataType:'realtime'},
+  {cat:'能源',key:'iron',  name:'铁矿石',    sig:'neutral',label:'加载中',w:1,desc:'中国经济敏感',dataType:'realtime'},
+  {cat:'特殊',key:'credit',name:'信用利差',  sig:'neutral',label:'暂无数据',w:2,desc:'高收益债风险',dataType:'unavailable'},
+  {cat:'特殊',key:'silver',name:'白银 XAG',  sig:'neutral',label:'加载中',w:1,desc:'工业+避险双属性',dataType:'realtime'},
+  {cat:'特殊',key:'cnh',   name:'离岸人民币',sig:'neutral',label:'加载中',w:2,desc:'中美温度计',dataType:'realtime'},
+  {cat:'特殊',key:'defense',name:'军工ETF ITA',sig:'neutral',label:'加载中',w:1,desc:'冲突持续预期',dataType:'realtime'},
+  {cat:'特殊',key:'polymarket',name:'Polymarket',sig:'neutral',label:'人工更新',w:2,desc:'群体概率判断',dataType:'manual'},
+];
+
+const bm={'risk-off':'b-off','risk-on':'b-on','neutral':'b-n'};
+const dtLabel={'realtime':'实时','daily':'每日','calculated':'计算值','unavailable':'暂无','manual':'人工'};
+const dtColor={'realtime':'var(--on)','daily':'var(--neu)','calculated':'var(--tx3)','unavailable':'var(--tx3)','manual':'var(--tx3)'};
+
+function sigFromChange(pct){
+  if(pct===null||pct===undefined)return'neutral';
+  return parseFloat(pct)>=0?'risk-on':'risk-off';
+}
+
+// 全局数据缓存，供renderAssets使用
+let liveAssetData={};
+
+function updateAssetData(data){
+  const m=data.macro||{};
+  const t=data.tickers||{};
+  const fr=data.fundingRates||{};
+  const fg=data.fearGreed;
+
+  function macroLabel(key){
+    const d=m[key];
+    if(!d)return null;
+    const pct=parseFloat(d.change);
+    const arrow=pct>=0?'↑':'↓';
+    return {label:`${parseFloat(d.price).toFixed(2)} ${arrow}${Math.abs(pct).toFixed(2)}%`, sig:sigFromChange(d.change)};
+  }
+  function priceLabel(sym){
+    const d=t[sym];
+    if(!d)return null;
+    const pct=parseFloat(d.price24hPcnt)*100;
+    const arrow=pct>=0?'↑':'↓';
+    return {label:`$${parseFloat(d.lastPrice).toFixed(sym==='BTCUSDT'?0:2)} ${arrow}${Math.abs(pct).toFixed(2)}%`, sig:sigFromChange(d.price24hPcnt)};
+  }
+
+  liveAssetData={
+    dxy:     macroLabel('dxy'),
+    us10y:   m.us10y?{label:parseFloat(m.us10y.price).toFixed(2)+'%'+(parseFloat(m.us10y.change)>=0?' ↑':' ↓'),sig:parseFloat(m.us10y.price)>4.5?'risk-off':'risk-on'}:null,
+    us2y:    m.us2y?{label:(parseFloat(m.us2y.price)/10).toFixed(2)+'%',sig:'neutral'}:null,
+    yieldCurve: m.yieldCurve?{label:m.yieldCurve.price>0?'+'+m.yieldCurve.price+'%':m.yieldCurve.price+'%',sig:m.yieldCurve.price>0?'risk-on':'risk-off'}:null,
+    jpy:     macroLabel('jpy'),
+    chf:     macroLabel('chf'),
+    gold:    macroLabel('gold'),
+    btc:     priceLabel('BTCUSDT'),
+    eth:     priceLabel('ETHUSDT'),
+    sol:     priceLabel('SOLUSDT'),
+    sp500:   macroLabel('sp500'),
+    nasdaq:  macroLabel('nasdaq'),
+    vix:     m.vix?{label:parseFloat(m.vix.price).toFixed(1)+(parseFloat(m.vix.change)>=0?' ↑':' ↓'),sig:parseFloat(m.vix.price)>20?'risk-off':'risk-on'}:null,
+    em:      macroLabel('em'),
+    btcFr:   fr.BTCUSDT!=null?{label:(fr.BTCUSDT>=0?'+':'')+(fr.BTCUSDT*100).toFixed(4)+'%',sig:fr.BTCUSDT>0.01?'risk-on':fr.BTCUSDT<-0.01?'risk-off':'neutral'}:null,
+    fg:      fg?{label:fg.value+' '+fg.label,sig:fg.value<40?'risk-off':fg.value>60?'risk-on':'neutral'}:null,
+    oil:     macroLabel('oil'),
+    brent:   macroLabel('brent'),
+    natgas:  macroLabel('natgas'),
+    copper:  macroLabel('copper'),
+    iron:    macroLabel('iron'),
+    silver:  macroLabel('silver'),
+    cnh:     macroLabel('cnh'),
+    defense: macroLabel('defense'),
+  };
+
+  // 重新渲染当前激活的tab
+  const activeTab=document.querySelector('.atab.active');
+  renderAssets(activeTab?activeTab.dataset.cat:'all');
+}
+
+function renderAssets(cat){
+  const list=cat==='all'?assets:assets.filter(a=>a.cat===cat);
+  document.getElementById('assetGrid').innerHTML=list.map(a=>{
+    const live=liveAssetData[a.key];
+    const sig=live?live.sig:a.sig;
+    const label=live?live.label:a.label;
+    const dt=a.dataType||'realtime';
+    return `
+    <div class="acard ${sig}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+        <div class="acat">${a.cat}</div>
+        <div style="font-size:9px;color:${dtColor[dt]};font-family:'JetBrains Mono',monospace">${dtLabel[dt]}</div>
+      </div>
+      <div class="aname">${a.name}</div>
+      <span class="abadge ${bm[sig]}">${label}</span>
+      <div class="adesc">${a.desc}</div>
+      <div class="awt">${[1,2,3].map(i=>`<div class="wd${i<=a.w?' f':''}"></div>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+renderAssets('all');
+
+document.getElementById('atabs').addEventListener('click',e=>{
+  const t=e.target.closest('.atab');
+  if(!t)return;
+  document.querySelectorAll('.atab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  renderAssets(t.dataset.cat);
+});
+
+document.querySelectorAll('.mcard').forEach(c=>{
+  c.addEventListener('click',()=>{
+    const ex=c.querySelector('.exp-box');
+    if(ex){ex.remove();return;}
+    const d=document.createElement('div');
+    d.className='exp-box';d.textContent=c.dataset.exp||'';
+    c.appendChild(d);
+  });
+});
+
+/* ── 数据获取：调用服务端 /api/market，不直连 Bybit ── */
+
+function fmt(p){
+  const n=parseFloat(p);
+  if(n>10000)return '$'+n.toLocaleString('en',{maximumFractionDigits:0});
+  if(n>100)return '$'+n.toFixed(2);
+  return '$'+n.toFixed(3);
+}
+
+function fmtFR(fr){
+  const s=fr>=0?'+':'';
+  return s+(fr*100).toFixed(4)+'%';
+}
+
+function frSig(fr){
+  return fr>0.01?'多头拥挤':fr<-0.01?'空头拥挤':'中性均衡';
+}
+
+function setLoading(){
+  ['btcPrice','solPrice','ethPrice','btcFr','solFr'].forEach(id=>{
+    document.getElementById(id).textContent='--';
+  });
+  document.getElementById('updateTime').textContent='更新中...';
+}
+
+function applyData(data){
+  if(!data||!data.ok)return;
+  const t=data.tickers;
+  const m=data.macro||{};
+  const fg=data.fearGreed;
+  const fr=data.fundingRates||{};
+
+  // ── 价格卡片 ──
+  function setPriceCard(sym,priceId,changeId){
+    if(!t[sym])return;
+    const d=t[sym];
+    document.getElementById(priceId).textContent=fmt(d.lastPrice);
+    const pct=parseFloat(d.price24hPcnt)*100;
+    const el=document.getElementById(changeId);
+    el.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'%';
+    el.className='price-chg '+(pct>=0?'up':'dn');
+  }
+  setPriceCard('BTCUSDT','btcPrice','btcChange');
+  setPriceCard('SOLUSDT','solPrice','solChange');
+  setPriceCard('ETHUSDT','ethPrice','ethChange');
+
+  // 黄金价格
+  if(m.gold?.price){
+    document.getElementById('xauPrice').textContent='$'+parseFloat(m.gold.price).toFixed(0);
+    const xauEl=document.getElementById('xauChange');
+    const xauPct=parseFloat(m.gold.change);
+    xauEl.textContent=(xauPct>=0?'+':'')+xauPct.toFixed(2)+'%';
+    xauEl.className='price-chg '+(xauPct>=0?'up':'dn');
+  }
+
+  // ── 资金费率 ──
+  if(t.BTCUSDT){
+    const bfr=parseFloat(t.BTCUSDT.fundingRate);
+    const bfrEl=document.getElementById('btcFr');
+    bfrEl.textContent=fmtFR(bfr);
+    bfrEl.className='price-val '+(bfr>=0?'up':'dn');
+    document.getElementById('btcFrSig').textContent=frSig(bfr);
+    document.getElementById('frCardVal').textContent=fmtFR(bfr);
+    document.getElementById('frCardSig').textContent=frSig(bfr);
+  }
+  if(t.SOLUSDT){
+    const sfr=parseFloat(t.SOLUSDT.fundingRate);
+    const sfrEl=document.getElementById('solFr');
+    sfrEl.textContent=fmtFR(sfr);
+    sfrEl.className='price-val '+(sfr>=0?'up':'dn');
+    document.getElementById('solFrSig').textContent=frSig(sfr);
+  }
+
+  // ── 核心监控指标卡片动态更新 ──
+  // DXY
+  if(m.dxy){
+    const pct=parseFloat(m.dxy.change);
+    updateMetricCard('mc-dxy',
+      `${parseFloat(m.dxy.price).toFixed(2)} ${pct>=0?'↑':'↓'}`,
+      pct>=0?'dn':'up',
+      pct>=0?'美元走强 · 压制BTC':'美元走弱 · 利好风险资产'
+    );
+  }
+  // 美债10Y
+  if(m.us10y){
+    const yield10=parseFloat(m.us10y.price);
+    updateMetricCard('mc-bond',
+      yield10.toFixed(2)+'%',
+      yield10>4.5?'dn':'up',
+      yield10>4.5?'高利率锚 · 压制风险资产':'利率温和 · 风险资产受益'
+    );
+  }
+  // 油价
+  if(m.oil){
+    const pct=parseFloat(m.oil.change);
+    updateMetricCard('mc-oil',
+      '$'+parseFloat(m.oil.price).toFixed(1)+' '+(pct>=0?'↑':'↓'),
+      pct>=0?'dn':'up',
+      pct>=0?'战争溢价驱动 · 通胀压力':'油价回落 · 通胀压力缓解'
+    );
+  }
+  // VIX
+  if(m.vix){
+    const vix=parseFloat(m.vix.price);
+    updateMetricCard('mc-vix',
+      vix.toFixed(1),
+      vix>20?'dn':'up',
+      vix>30?'极度恐慌':vix>20?'风险规避情绪偏强':'市场情绪平稳'
+    );
+  }
+  // 恐惧贪婪指数
+  if(fg){
+    updateMetricCard('mc-fg',
+      fg.value+' '+fg.label,
+      fg.value<40?'dn':fg.value>60?'up':'fl',
+      fg.value<25?'极度恐惧':fg.value<40?'恐惧':fg.value>75?'极度贪婪':fg.value>60?'贪婪':'中性'
+    );
+  }
+
+  // ── 综合情绪评分 ──
+  if(data.score!=null){
+    const score=data.score;
+    document.getElementById('scoreNum').textContent=score;
+    document.getElementById('scoreNum').style.color=
+      score<35?'var(--off)':score>65?'var(--on)':'var(--neu)';
+    document.getElementById('needle').style.left=score+'%';
+    // 状态文字
+    const stateEl=document.getElementById('stateLabel');
+    if(score<25){stateEl.textContent='⚠ 极度风险规避';stateEl.style.color='var(--off)';}
+    else if(score<45){stateEl.textContent='⚠ 风险规避主导';stateEl.style.color='var(--off)';}
+    else if(score<55){stateEl.textContent='◎ 市场情绪中性';stateEl.style.color='var(--neu)';}
+    else if(score<75){stateEl.textContent='✓ 风险偏好主导';stateEl.style.color='var(--on)';}
+    else{stateEl.textContent='✓ 极度风险偏好';stateEl.style.color='var(--on)';}
+  }
+
+  // ── 更新时间 ──
+  const now=new Date(data.ts);
+  document.getElementById('updateTime').textContent=
+    '更新于 '+now.toLocaleTimeString('zh-CN',{hour12:false});
+}
+
+// 更新指标卡片的值和信号文字
+function updateMetricCard(id, valText, valClass, sigText){
+  const card=document.getElementById(id);
+  if(!card)return;
+  const valEl=card.querySelector('.mc-val');
+  const sigEl=card.querySelector('.mc-sig');
+  if(valEl){valEl.textContent=valText;valEl.className='mc-val '+valClass;}
+  if(sigEl){sigEl.textContent=sigText;}
+}
+
+
+function renderGeo(n){
+  if(!n)return;
+  const sec=document.getElementById('geoSection');
+  sec.innerHTML=`
+    <div class="geo-card">
+      <div class="geo-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>当前叙事主线</span>
+        <span style="color:var(--tx3);font-size:10px;font-weight:400">更新：${n.updatedAt}</span>
+      </div>
+      <div class="geo-content">
+        ${n.headlines.map(h=>`
+          <div style="display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--bd)">
+            <span style="color:var(--tx3);font-size:10px;font-family:'JetBrains Mono',monospace;flex-shrink:0;padding-top:2px">${h.time}</span>
+            <span style="font-size:13px;line-height:1.5;color:var(--tx)">${h.text}</span>
+          </div>`).join('')}
+        <div style="margin-top:10px;padding:10px;background:rgba(186,117,23,0.1);border-radius:4px;font-size:13px;color:var(--neu);line-height:1.6">
+          <strong>结论：</strong>${n.conclusion}
+        </div>
+      </div>
+    </div>
+    <div class="geo-card">
+      <div class="geo-title">BATNA评估</div>
+      <div class="geo-content">
+        ${n.batna.map(b=>`<div style="margin-bottom:6px"><span class="geo-tag ${b.cls}">${b.side}</span>${b.text}</div>`).join('')}
+        <div style="margin-top:8px;font-size:12px;color:var(--tx2)">结论：伊朗终将妥协，但会拖延寻找体面台阶</div>
+      </div>
+    </div>
+    <div class="geo-card">
+      <div class="geo-title">信号过滤</div>
+      <div class="geo-content">
+        <div style="color:var(--on);font-size:12px;font-weight:500;margin-bottom:6px">高权重（行动层面）</div>
+        ${n.signals.high.map(s=>`<div style="font-size:12px;margin-bottom:4px">· ${s}</div>`).join('')}
+        <div style="color:var(--off);font-size:12px;font-weight:500;margin:10px 0 6px">低权重（声明层面）</div>
+        ${n.signals.low.map(s=>`<div style="font-size:12px;margin-bottom:4px">· ${s}</div>`).join('')}
+      </div>
+    </div>
+    <div class="geo-card warn">
+      <div class="geo-title">SOL操作区间参考</div>
+      <div class="geo-content">
+        做多区：${n.solLevels.long}<br>
+        做空区：${n.solLevels.short}<br>
+        当前位置：${n.solLevels.current}<br>
+        结构失效线：${n.solLevels.invalidate}
+      </div>
+    </div>`;
+}
+
+async function fetchNews(){
+  try{
+    const r=await fetch('https://vps.meihuaqianwen.com/api/news');
+    const n=await r.json();
+    renderGeo(n);
+  }catch(e){
+    console.error('fetchNews error:',e);
+  }
+}
+
+async function fetchRealtime(){
+  const btn=document.querySelector('.ref-btn');
+  if(btn){btn.textContent='↻ 更新中...';btn.disabled=true;}
+  setLoading();
+  try{
+    const r=await fetch('https://vps.meihuaqianwen.com/api/market');
+    const data=await r.json();
+    try{ updateAssetData(data); }catch(e){ console.error('updateAssetData error:',e); }
+    try{ applyData(data); }catch(e){ console.error('applyData error:',e); }
+  }catch(e){
+    document.getElementById('updateTime').textContent='获取失败，请重试';
+    console.error('fetch error:',e);
+  }finally{
+    if(btn){btn.textContent='↻ 刷新';btn.disabled=false;}
+  }
+}
+
+// 页面加载时同时拉取行情和新闻
+fetchRealtime();
+fetchNews();
+
+/* 粒子流场 */
+const cv2=document.getElementById('flowCanvas');
+const cx=cv2.getContext('2d');
+let W=0,H=0;
+function sz(){
+  const r=cv2.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  cv2.width=r.width*dpr;cv2.height=r.height*dpr;
+  cx.scale(dpr,dpr);W=r.width;H=r.height;
+}
+class P{
+  constructor(t){this.t=t;this.r();}
+  r(){
+    if(this.t==='off'){this.x=Math.random()*W*.4;this.y=Math.random()*H;this.vx=.4+Math.random()*.7;this.vy=(Math.random()-.5)*.4;}
+    else if(this.t==='on'){this.x=W*.6+Math.random()*W*.4;this.y=Math.random()*H;this.vx=-(0.4+Math.random()*.7);this.vy=(Math.random()-.5)*.4;}
+    else{this.x=Math.random()*W;this.y=Math.random()*H;this.vx=(Math.random()-.5)*.3;this.vy=(Math.random()-.5)*.3;}
+    this.life=0;this.ml=90+Math.random()*70;this.sz=.8+Math.random()*1.2;
+  }
+  u(){this.x+=this.vx;this.y+=this.vy;this.vy+=(Math.random()-.5)*.06;this.life++;if(this.life>this.ml||this.x<0||this.x>W||this.y<0||this.y>H)this.r();}
+  d(){
+    const a=Math.sin(this.life/this.ml*Math.PI)*.65;
+    cx.beginPath();cx.arc(this.x,this.y,this.sz,0,Math.PI*2);
+    cx.fillStyle=this.t==='off'?`rgba(226,75,74,${a})`:this.t==='on'?`rgba(29,158,117,${a})`:`rgba(186,117,23,${a})`;
+    cx.fill();
+  }
+}
+const ps=[];
+for(let i=0;i<45;i++)ps.push(new P('off'));
+for(let i=0;i<10;i++)ps.push(new P('on'));
+for(let i=0;i<12;i++)ps.push(new P('neutral'));
+function frame(){
+  if(!W||!H){requestAnimationFrame(frame);return;}
+  cx.clearRect(0,0,W,H);
+  cx.fillStyle='rgba(29,158,117,0.05)';cx.fillRect(0,0,W*.3,H);
+  cx.fillStyle='rgba(226,75,74,0.05)';cx.fillRect(W*.7,0,W*.3,H);
+  cx.font='500 8px JetBrains Mono';
+  cx.fillStyle='rgba(29,158,117,0.4)';cx.fillText('RISK',8,13);
+  cx.fillStyle='rgba(226,75,74,0.4)';cx.textAlign='right';cx.fillText('SAFE',W-8,13);cx.textAlign='left';
+  cx.fillStyle='rgba(186,117,23,0.2)';cx.font='9px Noto Sans SC';
+  cx.textAlign='center';cx.fillText('过渡区',W*.5,H*.5);cx.textAlign='left';
+  const ay=H*.65;
+  cx.strokeStyle='rgba(226,75,74,0.22)';cx.lineWidth=1;cx.setLineDash([3,4]);
+  cx.beginPath();cx.moveTo(W*.1,ay);cx.lineTo(W*.85,ay);cx.stroke();cx.setLineDash([]);
+  cx.fillStyle='rgba(226,75,74,0.4)';
+  cx.beginPath();cx.moveTo(W*.87,ay);cx.lineTo(W*.83,ay-3);cx.lineTo(W*.83,ay+3);cx.fill();
+  cx.fillStyle='rgba(226,75,74,0.3)';cx.font='8px JetBrains Mono';
+  cx.textAlign='center';cx.fillText('资金出逃方向',W*.48,ay-6);cx.textAlign='left';
+  ps.forEach(p=>{p.u();p.d();});
+  requestAnimationFrame(frame);
+}
+window.addEventListener('resize',sz);
+setTimeout(()=>{sz();frame();},200);
+</script>
+</body>
+</html>
