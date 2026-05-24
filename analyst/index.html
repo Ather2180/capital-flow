@@ -957,26 +957,6 @@ async function sendQuery(){
     btn.textContent = '执行分析 →';
   }
 }
-            contentEl.textContent += j.delta.text;
-            outputArea.scrollTop = 0;
-          }
-        }catch(e){}
-      }
-    }
-
-    contentEl.classList.remove('streaming');
-
-  }catch(e){
-    contentEl.classList.remove('streaming');
-    const errDiv = document.createElement('div');
-    errDiv.className = 'ob-error';
-    errDiv.textContent = '错误：' + e.message;
-    block.appendChild(errDiv);
-  }finally{
-    btn.disabled = false;
-    btn.textContent = '执行分析 →';
-  }
-}
 
 // 初始化检查API Key状态
 const savedKey = localStorage.getItem('qwen_api_key');
