@@ -419,6 +419,7 @@ ETF周净流入>$3000万=强支撑
             <input type="text" id="f-btc-sup" value="$76,000 / $74,000">
           </div>
           <div class="field">
+<<<<<<< HEAD
             <label class="field-label">BTC阻力位</label>
             <input type="text" id="f-btc-res" value="$82,800 / $85,000">
           </div>
@@ -427,6 +428,13 @@ ETF周净流入>$3000万=强支撑
           <div class="field">
             <label class="field-label">SOL支撑位</label>
             <input type="text" id="f-sol-sup" value="$86-87 / $83-84">
+=======
+            <label class="field-label" style="display:flex;justify-content:space-between;align-items:center">
+              <span>当前叙事主线</span>
+              <button onclick="loadNews()" style="font-family:var(--mono);font-size:13px;background:transparent;border:1px solid var(--bd2);color:var(--tx2);padding:2px 10px;border-radius:2px;cursor:pointer" id="newsRefBtn">↻ 同步新闻</button>
+            </label>
+            <textarea id="f-narrative" rows="3">加载中...</textarea>
+>>>>>>> 582141fbb33b2a203afbe8d9cedd76203aa9dc9d
           </div>
           <div class="field">
             <label class="field-label">SOL阻力位</label>
@@ -657,7 +665,48 @@ function updateStrip(d){
   document.getElementById('d-ts').textContent=new Date().toLocaleTimeString('zh-CN',{hour12:false});
 }
 
+// ── 自动加载新闻叙事 ──
+async function loadNews(){
+  const btn = document.getElementById('newsRefBtn');
+  if(btn) btn.textContent = '加载中...';
+  try{
+    const r = await fetch('https://vps.meihuaqianwen.com/api/news');
+    const n = await r.json();
+    if(!n.headlines) return;
+
+    // 组装叙事文本：标题列表 + 结论
+    const lines = n.headlines.map(h => `[${h.time}] ${h.text}`);
+    lines.push('');
+    lines.push('结论：' + n.conclusion);
+    document.getElementById('f-narrative').value = lines.join('\n');
+
+    // 同步更新监控信号（如果有）
+    if(n.signals){
+      const sigs = [
+        ...n.signals.high.map(s=>'● '+s),
+        ...n.signals.low.map(s=>'○ '+s)
+      ];
+      document.getElementById('f-signals').value = sigs.join('\n');
+    }
+
+    // 同步更新SOL操作区间
+    if(n.solLevels){
+      const sl = n.solLevels;
+      document.getElementById('f-sol-sup').value = sl.long.replace('（箱体下沿）','').trim();
+      document.getElementById('f-sol-res').value = sl.short.replace('（箱体上沿）','').trim();
+    }
+
+    if(btn) btn.textContent = '✓ 已同步';
+    setTimeout(()=>{ if(btn) btn.textContent = '↻ 同步新闻'; }, 2000);
+  }catch(e){
+    document.getElementById('f-narrative').value = '新闻加载失败，请手动填写或点击同步重试。';
+    if(btn) btn.textContent = '↻ 同步新闻';
+    console.error('loadNews error:', e);
+  }
+}
+
 fetchLiveData();
+<<<<<<< HEAD
 setInterval(fetchLiveData,60000);
 
 // ── 自动加载新闻叙事 ──
@@ -687,6 +736,10 @@ async function loadNews(){
     if(btn) btn.textContent='↻ 同步新闻';
   }
 }
+=======
+setInterval(fetchLiveData, 60000);
+// 页面加载时自动拉取新闻
+>>>>>>> 582141fbb33b2a203afbe8d9cedd76203aa9dc9d
 loadNews();
 
 // ── 构建完整提示词 ──
