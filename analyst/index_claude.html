@@ -21,8 +21,8 @@
   --off:#d94f4f;
   --neu:#ba7517;
   --tx:#ffffff;
-  --tx2:#b0c8d4;
-  --tx3:#5a7a8a;
+  --tx2:#6a8c9a;
+  --tx3:#2e4452;
   --mono:'JetBrains Mono',monospace;
   --sans:'Noto Sans SC',sans-serif;
 }
@@ -32,7 +32,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--san
 /* ── 顶部 header ── */
 .hdr{
   position:fixed;top:0;left:0;right:0;z-index:200;
-  height:64px;
+  height:60px;
   display:flex;align-items:center;justify-content:space-between;
   padding:0 20px;
   background:rgba(6,10,12,0.92);
@@ -47,14 +47,14 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--san
   animation:gem-spin 4s linear infinite;
 }
 @keyframes gem-spin{to{transform:rotate(360deg)}}
-.hdr-title{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--acc);letter-spacing:2px;text-transform:uppercase}
-.hdr-sub{font-size:22px;color:var(--tx3);font-family:var(--mono);margin-left:8px;letter-spacing:1px}
+.hdr-title{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--acc);letter-spacing:2px;text-transform:uppercase}
+.hdr-sub{font-size:14px;color:var(--tx3);font-family:var(--mono);margin-left:8px;letter-spacing:1px}
 .hdr-right{display:flex;align-items:center;gap:12px}
-.live-tag{font-family:var(--mono);font-size:22px;color:var(--on);border:1px solid rgba(26,158,114,0.4);padding:3px 8px;border-radius:2px;letter-spacing:1px}
+.live-tag{font-family:var(--mono);font-size:14px;color:var(--on);border:1px solid rgba(26,158,114,0.4);padding:3px 8px;border-radius:2px;letter-spacing:1px}
 .live-tag span{display:inline-block;width:5px;height:5px;background:var(--on);border-radius:50%;margin-right:5px;animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
 .api-key-btn{
-  font-family:var(--mono);font-size:22px;
+  font-family:var(--mono);font-size:14px;
   background:transparent;border:1px solid var(--bd2);
   color:var(--tx2);padding:4px 10px;border-radius:2px;cursor:pointer;
   letter-spacing:1px;transition:all .15s;
@@ -73,9 +73,9 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--san
 }
 .data-strip::-webkit-scrollbar{display:none}
 .ds-item{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.ds-label{font-family:var(--mono);font-size:22px;color:var(--tx3);letter-spacing:1px}
-.ds-val{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--tx)}
-.ds-chg{font-family:var(--mono);font-size:22px}
+.ds-label{font-family:var(--mono);font-size:18px;color:var(--tx3);letter-spacing:1px}
+.ds-val{font-family:var(--mono);font-size:17px;font-weight:500;color:var(--tx)}
+.ds-chg{font-family:var(--mono);font-size:14px}
 .up{color:var(--on)}.dn{color:var(--off)}.fl{color:var(--tx3)}
 .ds-div{width:1px;height:16px;background:var(--bd);flex-shrink:0}
 
@@ -84,7 +84,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--san
   position:fixed;
   top:108px;left:0;right:0;bottom:0;
   display:grid;
-  grid-template-columns:480px 1fr;
+  grid-template-columns:380px 1fr;
 }
 
 /* ── 左侧：提示词编辑器 ── */
@@ -99,9 +99,9 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--san
   display:flex;align-items:center;justify-content:space-between;
   flex-shrink:0;
 }
-.left-hd-title{font-family:var(--mono);font-size:22px;color:var(--acc);letter-spacing:2px}
+.left-hd-title{font-family:var(--mono);font-size:14px;color:var(--acc);letter-spacing:2px}
 .gen-btn{
-  font-family:var(--mono);font-size:22px;
+  font-family:var(--mono);font-size:14px;
   background:var(--acc-dim);border:1px solid var(--acc);
   color:var(--acc);padding:4px 12px;border-radius:2px;cursor:pointer;
   letter-spacing:1px;transition:all .15s;
@@ -130,29 +130,29 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--san
 }
 .mod-hd:hover{background:var(--bd)}
 .mod-hd-left{display:flex;align-items:center;gap:8px}
-.mod-num{font-family:var(--mono);font-size:22px;color:var(--acc);border:1px solid var(--acc-dim);padding:1px 5px;border-radius:2px}
-.mod-name{font-size:22px;font-weight:500;color:var(--tx)}
-.mod-toggle{font-family:var(--mono);font-size:22px;color:var(--tx3);transition:transform .2s}
+.mod-num{font-family:var(--mono);font-size:18px;color:var(--acc);border:1px solid var(--acc-dim);padding:1px 5px;border-radius:2px}
+.mod-name{font-size:17px;font-weight:500;color:var(--tx)}
+.mod-toggle{font-family:var(--mono);font-size:14px;color:var(--tx3);transition:transform .2s}
 .mod.open .mod-toggle{transform:rotate(180deg)}
 .mod-body{display:none;padding:10px 12px}
 .mod.open .mod-body{display:block}
 
 /* 固定模块标签 */
 .fixed-tag{
-  font-family:var(--mono);font-size:22px;color:var(--tx3);
+  font-family:var(--mono);font-size:18px;color:var(--tx3);
   border:1px solid var(--bd2);padding:1px 6px;border-radius:2px;letter-spacing:1px;
 }
 
 /* 可编辑字段 */
 .field{margin-bottom:10px}
-.field-label{font-family:var(--mono);font-size:22px;color:var(--tx3);letter-spacing:1px;margin-bottom:4px;display:block}
+.field-label{font-family:var(--mono);font-size:18px;color:var(--tx3);letter-spacing:1px;margin-bottom:4px;display:block}
 .field input,.field textarea,.field select{
   width:100%;
   background:var(--bg);
   border:1px solid var(--bd2);
   color:var(--tx);
   font-family:var(--mono);
-  font-size:24px;
+  font-size:16px;
   padding:7px 10px;
   border-radius:3px;
   outline:none;
@@ -160,12 +160,12 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--san
   resize:vertical;
 }
 .field input:focus,.field textarea:focus{border-color:var(--acc)}
-.field textarea{min-height:64px;line-height:1.5}
+.field textarea{min-height:60px;line-height:1.5}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
 /* 固定模块预览 */
 .fixed-preview{
-  font-family:var(--mono);font-size:22px;color:var(--tx3);
+  font-family:var(--mono);font-size:14px;color:var(--tx3);
   line-height:1.6;background:rgba(0,0,0,0.3);
   padding:8px;border-radius:3px;
   border-left:2px solid var(--bd2);
@@ -186,7 +186,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--san
   border-bottom:1px solid var(--bd);
   flex-shrink:0;
 }
-.query-label{font-family:var(--mono);font-size:22px;color:var(--acc);letter-spacing:2px;margin-bottom:6px}
+.query-label{font-family:var(--mono);font-size:18px;color:var(--acc);letter-spacing:2px;margin-bottom:6px}
 .query-row{display:flex;gap:8px;align-items:flex-end}
 .query-input{
   flex:1;
@@ -194,7 +194,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--san
   border:1px solid var(--bd2);
   color:var(--tx);
   font-family:var(--sans);
-  font-size:22px;
+  font-size:18px;
   padding:9px 14px;
   border-radius:3px;
   outline:none;
@@ -209,7 +209,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--san
 .send-btn{
   background:var(--acc);
   border:none;color:#000;
-  font-family:var(--mono);font-size:24px;font-weight:700;
+  font-family:var(--mono);font-size:16px;font-weight:700;
   padding:9px 18px;border-radius:3px;cursor:pointer;
   letter-spacing:1px;white-space:nowrap;
   transition:opacity .15s;
@@ -233,10 +233,10 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--san
   font-size:48px;opacity:.3;
   font-family:var(--mono);
 }
-.output-empty-text{font-size:22px;font-family:var(--mono);letter-spacing:1px}
+.output-empty-text{font-size:17px;font-family:var(--mono);letter-spacing:1px}
 .quick-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
 .quick-btn{
-  font-family:var(--mono);font-size:22px;
+  font-family:var(--mono);font-size:14px;
   background:var(--s1);border:1px solid var(--bd2);
   color:var(--tx2);padding:6px 12px;border-radius:2px;
   cursor:pointer;letter-spacing:.5px;transition:all .15s;
@@ -257,11 +257,11 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--san
   display:flex;align-items:center;justify-content:space-between;
   background:var(--s2);
 }
-.ob-query{font-size:22px;color:var(--tx2);flex:1}
-.ob-time{font-family:var(--mono);font-size:22px;color:var(--tx3)}
+.ob-query{font-size:17px;color:var(--tx2);flex:1}
+.ob-time{font-family:var(--mono);font-size:18px;color:var(--tx3)}
 .ob-content{
   padding:20px;
-  font-size:24px;
+  font-size:20px;
   line-height:2.0;
   color:#ffffff;
   white-space:pre-wrap;
@@ -287,7 +287,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--san
   padding:14px;
   color:var(--off);
   font-family:var(--mono);
-  font-size:24px;
+  font-size:16px;
   background:rgba(217,79,79,0.08);
   border:1px solid rgba(217,79,79,0.2);
   border-radius:4px;
@@ -311,22 +311,22 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--san
   width:380px;
   max-width:90vw;
 }
-.modal-title{font-family:var(--mono);font-size:22px;color:var(--acc);letter-spacing:2px;margin-bottom:16px}
-.modal-desc{font-size:22px;color:var(--tx2);line-height:1.6;margin-bottom:16px}
+.modal-title{font-family:var(--mono);font-size:17px;color:var(--acc);letter-spacing:2px;margin-bottom:16px}
+.modal-desc{font-size:17px;color:var(--tx2);line-height:1.6;margin-bottom:16px}
 .modal input{
   width:100%;background:var(--bg);border:1px solid var(--bd2);
-  color:var(--tx);font-family:var(--mono);font-size:22px;
+  color:var(--tx);font-family:var(--mono);font-size:17px;
   padding:9px 12px;border-radius:3px;outline:none;margin-bottom:12px;
 }
 .modal input:focus{border-color:var(--acc)}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end}
 .modal-cancel{
-  font-family:var(--mono);font-size:24px;
+  font-family:var(--mono);font-size:16px;
   background:transparent;border:1px solid var(--bd2);
   color:var(--tx2);padding:7px 16px;border-radius:2px;cursor:pointer;
 }
 .modal-save{
-  font-family:var(--mono);font-size:24px;
+  font-family:var(--mono);font-size:16px;
   background:var(--acc);border:none;
   color:#000;font-weight:700;padding:7px 16px;border-radius:2px;cursor:pointer;
 }
@@ -439,7 +439,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--san
 伊朗革命卫队：生存驱动，退让=被清算...
 中国支持伊朗：结构性必须，能源安全+地缘博弈...
 以色列真实目标：安全周边，国力有限有底线设计...</div>
-          <div style="margin-top:8px;font-family:var(--mono);font-size:22px;color:var(--tx3)">此模块包含完整公理层，无需编辑</div>
+          <div style="margin-top:8px;font-family:var(--mono);font-size:18px;color:var(--tx3)">此模块包含完整公理层，无需编辑</div>
         </div>
       </div>
 
@@ -482,7 +482,7 @@ ETF：周净流入>$3000万=强支撑信号...</div>
           <div class="mod-hd-left">
             <span class="mod-num">04</span>
             <span class="mod-name">当前市场背景</span>
-            <span style="font-family:var(--mono);font-size:22px;color:var(--on);border:1px solid rgba(26,158,114,0.3);padding:1px 6px;border-radius:2px">可编辑</span>
+            <span style="font-family:var(--mono);font-size:18px;color:var(--on);border:1px solid rgba(26,158,114,0.3);padding:1px 6px;border-radius:2px">可编辑</span>
           </div>
           <span class="mod-toggle">▾</span>
         </div>
@@ -527,7 +527,7 @@ ETF：周净流入>$3000万=强支撑信号...</div>
           <div class="mod-hd-left">
             <span class="mod-num">05</span>
             <span class="mod-name">账户状态</span>
-            <span style="font-family:var(--mono);font-size:22px;color:var(--on);border:1px solid rgba(26,158,114,0.3);padding:1px 6px;border-radius:2px">可编辑</span>
+            <span style="font-family:var(--mono);font-size:18px;color:var(--on);border:1px solid rgba(26,158,114,0.3);padding:1px 6px;border-radius:2px">可编辑</span>
           </div>
           <span class="mod-toggle">▾</span>
         </div>
@@ -604,8 +604,8 @@ ETF：周净流入>$3000万=强支撑信号...</div>
 <!-- API Key 弹窗 -->
 <div class="modal-bg" id="apiModal">
   <div class="modal">
-    <div class="modal-title">设置 Qwen API Key</div>
-    <div class="modal-desc">API Key 仅保存在本地浏览器，不会上传到任何服务器。<br>获取地址：dashscope.console.aliyun.com → API Key管理</div>
+    <div class="modal-title">设置 Claude API Key</div>
+    <div class="modal-desc">API Key 仅保存在本地浏览器，不会上传到任何服务器。<br>获取地址：console.anthropic.com</div>
     <input type="password" id="apiKeyInput" placeholder="sk-ant-api...">
     <div class="modal-btns">
       <button class="modal-cancel" onclick="hideApiModal()">取消</button>
@@ -827,7 +827,7 @@ async function copyPrompt(){
 
 // ── API Key 管理 ──
 function showApiModal(){
-  const saved = localStorage.getItem('qwen_api_key') || '';
+  const saved = localStorage.getItem('claude_api_key') || '';
   document.getElementById('apiKeyInput').value = saved ? '已保存（点击修改）' : '';
   document.getElementById('apiModal').classList.add('show');
 }
@@ -836,15 +836,15 @@ function hideApiModal(){
 }
 function saveApiKey(){
   const key = document.getElementById('apiKeyInput').value.trim();
-  if(key && key.startsWith('sk-')){
-    localStorage.setItem('qwen_api_key', key);
+  if(key && key.startsWith('sk-ant')){
+    localStorage.setItem('claude_api_key', key);
     hideApiModal();
     const btn = document.querySelector('.api-key-btn');
     btn.textContent = 'API KEY ✓';
     btn.style.color = 'var(--on)';
     btn.style.borderColor = 'var(--on)';
   } else {
-    alert('请输入有效的 Qwen API Key（以 sk- 开头）');
+    alert('请输入有效的 Claude API Key（以 sk-ant 开头）');
   }
 }
 
@@ -862,12 +862,12 @@ function handleKey(e){
   }
 }
 
-// ── 发送查询（Qwen API）──
+// ── 发送查询 ──
 async function sendQuery(){
   const query = document.getElementById('queryInput').value.trim();
   if(!query) return;
 
-  const apiKey = localStorage.getItem('qwen_api_key');
+  const apiKey = localStorage.getItem('claude_api_key');
   if(!apiKey){
     showApiModal();
     return;
@@ -877,12 +877,15 @@ async function sendQuery(){
   btn.disabled = true;
   btn.textContent = '分析中...';
 
+  // 隐藏空状态
   document.getElementById('emptyState').style.display = 'none';
   document.getElementById('queryInput').value = '';
 
+  // 构建消息
   const systemPrompt = buildPrompt();
   const now = new Date().toLocaleString('zh-CN',{hour12:false});
 
+  // 创建输出块
   const block = document.createElement('div');
   block.className = 'output-block';
   block.innerHTML = `
@@ -896,19 +899,19 @@ async function sendQuery(){
   const contentEl = block.querySelector('.ob-content');
 
   try{
-    const resp = await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + apiKey,
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
       },
       body: JSON.stringify({
-        model: 'qwen-max',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 2000,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: query }
-        ],
+        system: systemPrompt,
+        messages: [{ role: 'user', content: query }],
         stream: true,
       }),
     });
@@ -934,29 +937,7 @@ async function sendQuery(){
         if(data === '[DONE]') continue;
         try{
           const j = JSON.parse(data);
-          // Qwen兼容OpenAI格式
-          const text = j.choices?.[0]?.delta?.content;
-          if(text){
-            contentEl.textContent += text;
-            outputArea.scrollTop = 0;
-          }
-        }catch(e){}
-      }
-    }
-
-    contentEl.classList.remove('streaming');
-
-  }catch(e){
-    contentEl.classList.remove('streaming');
-    const errDiv = document.createElement('div');
-    errDiv.className = 'ob-error';
-    errDiv.textContent = '错误：' + e.message;
-    block.appendChild(errDiv);
-  }finally{
-    btn.disabled = false;
-    btn.textContent = '执行分析 →';
-  }
-}
+          if(j.type === 'content_block_delta' && j.delta?.text){
             contentEl.textContent += j.delta.text;
             outputArea.scrollTop = 0;
           }
@@ -979,7 +960,7 @@ async function sendQuery(){
 }
 
 // 初始化检查API Key状态
-const savedKey = localStorage.getItem('qwen_api_key');
+const savedKey = localStorage.getItem('claude_api_key');
 if(savedKey){
   const btn = document.querySelector('.api-key-btn');
   btn.textContent = 'API KEY ✓';
