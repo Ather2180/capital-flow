@@ -1027,16 +1027,15 @@ async function generateNarrative(){
     if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||'HTTP '+resp.status);}
     const d=await resp.json();
     const text=d.choices?.[0]?.message?.content||'';
-    console.log('Qwen原始返回：', text); // 调试用
     // 清理markdown代码块和多余文字，提取纯JSON
     let clean = text
-      .replace(/```json/gi,'').replace(/```/g,'')
+      .replace(/```json/gi,'').replace(/```/g,'')  // 去掉代码块
       .trim();
+    // 找到第一个{到最后一个}之间的内容
     const start = clean.indexOf('{');
     const end = clean.lastIndexOf('}');
     if(start===-1||end===-1) throw new Error('AI未返回有效JSON，请重试');
     clean = clean.slice(start, end+1);
-    console.log('清理后JSON：', clean.slice(0,200)); // 调试用
     const data=JSON.parse(clean);
     currentNarrativeData=data;
     renderNarrativeCards(data);
