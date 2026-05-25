@@ -945,7 +945,7 @@ const NARRATIVE_PROMPT = `你是一名资深全球宏观策略分析师，同时
 
 严格输出以下JSON格式，不输出任何其他内容，不加markdown代码块，不加解释文字：
 
-{"narratives":[{"level":"宏观","weight":60,"title":"叙事标题15字内","headlines":[{"time":"MM-DD HH:mm","text":"新闻标题来自实际搜索结果"},{"time":"MM-DD HH:mm","text":"新闻标题"}],"signalType":"高权重行动信号或低权重声明信号","impact":"正面或负面或中性","impactDesc":"通过Beta渠道对SOL的具体影响30字内","expiry":"有效期说明"},{"level":"中观","weight":25,"title":"叙事标题","headlines":[{"time":"MM-DD HH:mm","text":"新闻标题"}],"signalType":"高权重或低权重","impact":"正面或负面或中性","impactDesc":"对SOL相对强弱的影响30字内","expiry":"有效期"},{"level":"微观","weight":15,"title":"叙事标题","headlines":[{"time":"MM-DD HH:mm","text":"新闻标题"}],"signalType":"高权重或低权重","impact":"正面或负面或中性","impactDesc":"对SOL独立Alpha的影响30字内","expiry":"有效期"}],"dominantLayer":"宏观或中观或微观","synthesis":"综合三层叙事当前SOL所处阶段和核心驱动力40字内","conclusion":"叙事主线一句话总结50字内","solLevels":{"long":"根据当前价格给出具体做多区间数字如85-87","short":"根据当前价格给出具体做空区间数字如92-95","current":"根据搜索到的SOL当前价格判断位置","invalidate":"给出具体价格数字如BTC跌破78000"},"signals":{"high":["高权重行动信号1具体事件","高权重行动信号2具体事件"],"low":["低权重声明信号1具体内容","低权重声明信号2具体内容"]}}`;
+{"narratives":[{"level":"宏观","weight":60,"title":"叙事标题15字内","headlines":[{"time":"MM-DD HH:mm","text":"新闻标题来自实际搜索结果"},{"time":"MM-DD HH:mm","text":"新闻标题"}],"signalType":"高权重行动信号或低权重声明信号","impact":"正面或负面或中性","impactDesc":"通过Beta渠道对SOL的具体影响30字内","expiry":"有效期说明"},{"level":"中观","weight":25,"title":"叙事标题","headlines":[{"time":"MM-DD HH:mm","text":"新闻标题"}],"signalType":"高权重或低权重","impact":"正面或负面或中性","impactDesc":"对SOL相对强弱的影响30字内","expiry":"有效期"},{"level":"微观","weight":15,"title":"叙事标题","headlines":[{"time":"MM-DD HH:mm","text":"新闻标题"}],"signalType":"高权重或低权重","impact":"正面或负面或中性","impactDesc":"对SOL独立Alpha的影响30字内","expiry":"有效期"}],"dominantLayer":"宏观或中观或微观","synthesis":"综合三层叙事当前SOL所处阶段和核心驱动力40字内","conclusion":"叙事主线一句话总结50字内","solLevels":{"long":"做多参考区间如85-87","short":"做空参考区间如92-95","current":"当前价格位置判断","invalidate":"结构失效线如BTC跌破78000"},"signals":{"high":["高权重行动信号1具体事件","高权重行动信号2具体事件"],"low":["低权重声明信号1具体内容","低权重声明信号2具体内容"]}}`;
 
 function getLevelColor(level){
   if(level==='宏观') return {bg:'rgba(217,79,79,0.1)',bd:'rgba(217,79,79,0.3)',tx:'var(--off)'};
@@ -1027,21 +1027,17 @@ async function generateNarrative(){
     if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||'HTTP '+resp.status);}
     const d=await resp.json();
     const text=d.choices?.[0]?.message?.content||'';
-    let clean = text.replace(/```json/gi,'').replace(/```/g,'').trim();
+    console.log('Qwen原始返回：', text); // 调试用
+    // 清理markdown代码块和多余文字，提取纯JSON
+    let clean = text
+      .replace(/```json/gi,'').replace(/```/g,'')
+      .trim();
     const start = clean.indexOf('{');
     const end = clean.lastIndexOf('}');
     if(start===-1||end===-1) throw new Error('AI未返回有效JSON，请重试');
     clean = clean.slice(start, end+1);
+    console.log('清理后JSON：', clean.slice(0,200)); // 调试用
     const data=JSON.parse(clean);
-
-    // 容错：如果solLevels是模板文字则用默认值
-    if(data.solLevels){
-      const sl=data.solLevels;
-      if(!sl.long||sl.long.includes('如')) sl.long='$85-$87';
-      if(!sl.short||sl.short.includes('如')) sl.short='$92-$95';
-      if(!sl.current||sl.current.includes('判断')) sl.current='参考实时行情';
-      if(!sl.invalidate||sl.invalidate.includes('如')) sl.invalidate='BTC跌破$78,000';
-    }
     currentNarrativeData=data;
     renderNarrativeCards(data);
   }catch(e){
