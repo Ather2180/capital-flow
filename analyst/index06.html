@@ -902,50 +902,15 @@ async function sendQuery(){
 // ── 叙事识别 ──
 let currentNarrativeData = null;
 
-const NARRATIVE_PROMPT = `你是一名资深全球宏观策略分析师，同时具备以下校准过的判断公理：
+const NARRATIVE_PROMPT = `你是一个全球宏观金融分析师。请联网搜索今天最新的全球金融与地缘政治新闻，然后按以下框架输出分析。
 
-【判断公理层】
+搜索范围：美联储动态、地缘政治冲突（美伊/中东）、大宗商品（油价/黄金）、加密市场（BTC/SOL）、SOL生态进展。
 
-**领导人行为模式**
-- 川普：交易型人格，极限施压后必然寻找体面退出。极端威胁优先解读为谈判筹码，而非真实战争意图，除非有行动层面佐证
-- 伊朗革命卫队：生存驱动而非信仰驱动，退让=被清算，强硬是唯一理性选择，会用灰色行动表明态度而不真正破坏谈判框架
-- 中国：结构性必须支持伊朗，能源安全+地缘博弈双重绑定，会持续支持但避免与美直接冲突
+按宏观/中观/微观三层识别叙事主线，评估每层对SOL价格的影响权重。
 
-**信号过滤原则**
-- 高权重：行动层面信号（军事部署、外交官实际行程、油价实际变化、商船通行记录）
-- 低权重：声明层面信号（领导人公开威胁、官方媒体声明、谈判"进展顺利"表态）
-- 极端威胁 = 谈判筹码，降权处理
+必须严格输出以下JSON格式，不要输出任何其他内容，不要加markdown代码块：
 
-**SOL定价框架**
-- SOL价格 = 宏观Beta（60%）+ SOL独立Alpha（40%）
-- 宏观主导期：SOL跟随BTC，独立Alpha被压制
-- Alpha核心催化剂：Alpenglow升级（12.8秒→150ms，Q2-Q3 2026主网激活）
-- ETF门槛：周净流入>$3000万=强支撑信号，持续流出=注意减仓
-
-【执行指令】
-
-第一步：联网搜索过去24小时内以下关键领域的最新新闻：
-- 美伊谈判/中东地缘政治最新进展
-- 油价（WTI/布伦特）走势和驱动因素
-- 美联储官员表态/美债收益率变化
-- BTC/SOL/加密市场整体动向
-- SOL生态进展（Alpenglow、ETF流入、链上数据）
-- 全球风险情绪指标（VIX、黄金、美元）
-
-第二步：用以上判断公理过滤新闻，区分高权重行动信号和低权重声明信号。
-
-第三步：按宏观/中观/微观三层构建SOL叙事主线：
-- 宏观层：识别最显著的外部冲击，分析对全球风险偏好的影响，以及如何通过Beta渠道影响SOL
-- 中观层：SOL在加密公链中的相对地位，ETF流入趋势、BTC主导率变化、SOL/BTC比值走向
-- 微观层：SOL自身关键变量，Alpenglow进展、TVL、链上活跃度、资金费率、关键支撑阻力
-
-第四步：综合三层叙事，判断当前SOL所处的叙事驱动阶段，给出操作区间参考。
-
-【输出要求】
-
-严格输出以下JSON格式，不输出任何其他内容，不加markdown代码块，不加解释文字：
-
-{"narratives":[{"level":"宏观","weight":60,"title":"叙事标题15字内","headlines":[{"time":"MM-DD HH:mm","text":"新闻标题来自实际搜索结果"},{"time":"MM-DD HH:mm","text":"新闻标题"}],"signalType":"高权重行动信号或低权重声明信号","impact":"正面或负面或中性","impactDesc":"通过Beta渠道对SOL的具体影响30字内","expiry":"有效期说明"},{"level":"中观","weight":25,"title":"叙事标题","headlines":[{"time":"MM-DD HH:mm","text":"新闻标题"}],"signalType":"高权重或低权重","impact":"正面或负面或中性","impactDesc":"对SOL相对强弱的影响30字内","expiry":"有效期"},{"level":"微观","weight":15,"title":"叙事标题","headlines":[{"time":"MM-DD HH:mm","text":"新闻标题"}],"signalType":"高权重或低权重","impact":"正面或负面或中性","impactDesc":"对SOL独立Alpha的影响30字内","expiry":"有效期"}],"dominantLayer":"宏观或中观或微观","synthesis":"综合三层叙事当前SOL所处阶段和核心驱动力40字内","conclusion":"叙事主线一句话总结50字内","solLevels":{"long":"做多参考区间如85-87","short":"做空参考区间如92-95","current":"当前价格位置判断","invalidate":"结构失效线如BTC跌破78000"},"signals":{"high":["高权重行动信号1具体事件","高权重行动信号2具体事件"],"low":["低权重声明信号1具体内容","低权重声明信号2具体内容"]}}`;
+{"narratives":[{"level":"宏观","weight":60,"title":"叙事标题15字内","headlines":[{"time":"MM-DD HH:mm","text":"新闻标题来自搜索结果"}],"impact":"正面或负面或中性","impactDesc":"对SOL影响30字内","expiry":"有效期说明"},{"level":"中观","weight":25,"title":"叙事标题","headlines":[{"time":"MM-DD HH:mm","text":"新闻标题"}],"impact":"正面或负面或中性","impactDesc":"影响说明","expiry":"有效期"},{"level":"微观","weight":15,"title":"叙事标题","headlines":[{"time":"MM-DD HH:mm","text":"新闻标题"}],"impact":"正面或负面或中性","impactDesc":"影响说明","expiry":"有效期"}],"synthesis":"综合三层叙事对SOL态势的一句话判断40字内","conclusion":"当前叙事主线简要总结50字内","solLevels":{"long":"做多区间如85-87","short":"做空区间如92-95","current":"当前位置判断","invalidate":"结构失效线如BTC跌破78000"},"signals":{"high":["高权重行动信号1","高权重行动信号2"],"low":["低权重声明信号1","低权重声明信号2"]}}`;
 
 function getLevelColor(level){
   if(level==='宏观') return {bg:'rgba(217,79,79,0.1)',bd:'rgba(217,79,79,0.3)',tx:'var(--off)'};
@@ -955,22 +920,9 @@ function getLevelColor(level){
 
 function renderNarrativeCards(data){
   const cards=document.getElementById('narrativeCards');
-
-  // 主导层级标注
-  if(data.dominantLayer){
-    const dc=getLevelColor(data.dominantLayer);
-    cards.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px 12px;background:${dc.bg};border:1px solid ${dc.bd};border-radius:4px">
-      <span style="font-family:var(--mono);font-size:11px;color:${dc.tx}">当前主导层级</span>
-      <span style="font-size:15px;font-weight:700;color:${dc.tx}">${data.dominantLayer}叙事主导</span>
-    </div>`;
-  } else {
-    cards.innerHTML='';
-  }
-
-  cards.innerHTML+=data.narratives.map(n=>{
+  cards.innerHTML=data.narratives.map(n=>{
     const c=getLevelColor(n.level);
     const ic=n.impact==='正面'?'var(--on)':n.impact==='负面'?'var(--off)':'var(--neu)';
-    const stColor=n.signalType?.includes('高权重')?'var(--on)':'var(--tx3)';
     return `<div style="background:${c.bg};border:1px solid ${c.bd};border-radius:5px;padding:14px;margin-bottom:10px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div style="display:flex;align-items:center;gap:8px">
@@ -985,12 +937,11 @@ function renderNarrativeCards(data){
           <span style="font-size:13px;color:var(--tx2);line-height:1.5">${h.text}</span>
         </div>`).join('')}
       </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <span style="font-family:var(--mono);font-size:11px;color:${ic};border:1px solid ${ic};padding:2px 8px;border-radius:2px">${n.impact}</span>
         <span style="font-size:13px;color:var(--tx2)">${n.impactDesc}</span>
       </div>
-      ${n.signalType?`<div style="font-family:var(--mono);font-size:11px;color:${stColor}">● ${n.signalType}</div>`:''}
-      <div style="margin-top:4px;font-family:var(--mono);font-size:11px;color:var(--tx3)">有效期：${n.expiry}</div>
+      <div style="margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--tx3)">有效期：${n.expiry}</div>
     </div>`;
   }).join('');
 
