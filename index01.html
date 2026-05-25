@@ -268,12 +268,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Noto San
         <div class="price-val" id="xauPrice">--</div>
         <div class="price-chg fl" id="xauChange">加载中</div>
       </div>
-      <div class="price-card">
-        <div class="price-cat">Polygon · Uniswap</div>
-        <div class="price-name">JZT/USD</div>
-        <div class="price-val" id="jztPrice">--</div>
-        <div class="price-chg fl" id="jztChange">加载中</div>
-      </div>
       <div class="price-card full">
         <div class="fr-item">
           <div class="price-cat">资金费率</div>
@@ -721,29 +715,10 @@ async function fetchRealtime(){
   if(btn){btn.textContent='↻ 更新中...';btn.disabled=true;}
   setLoading();
   try{
-    // 并行拉取市场数据和JZT价格
-    const [r, jztR] = await Promise.all([
-      fetch('https://vps.meihuaqianwen.com/api/market'),
-      fetch('https://vps.meihuaqianwen.com/api/jzt').catch(()=>null),
-    ]);
+    const r=await fetch('https://vps.meihuaqianwen.com/api/market');
     const data=await r.json();
     try{ updateAssetData(data); }catch(e){ console.error('updateAssetData error:',e); }
     try{ applyData(data); }catch(e){ console.error('applyData error:',e); }
-
-    // 更新JZT价格
-    if(jztR){
-      try{
-        const jzt=await jztR.json();
-        if(jzt.ok && jzt.price){
-          const price=parseFloat(jzt.price);
-          document.getElementById('jztPrice').textContent='$'+price.toFixed(4);
-          const chg=parseFloat(jzt.change24h)||0;
-          const chgEl=document.getElementById('jztChange');
-          chgEl.textContent=(chg>=0?'+':'')+chg.toFixed(2)+'%';
-          chgEl.className='price-chg '+(chg>=0?'up':'dn');
-        }
-      }catch(e){ console.error('jzt error:',e); }
-    }
   }catch(e){
     document.getElementById('updateTime').textContent='获取失败，请重试';
     console.error('fetch error:',e);
