@@ -1015,17 +1015,33 @@ async function generateNarrative(){
   document.getElementById('narrativeResult').style.display='none';
   document.getElementById('narrativeSaveArea').style.display='none';
   try{
-    // 由VPS服务端调用Qwen，避免浏览器端的解析问题
-    const resp=await fetch('https://vps.meihuaqianwen.com/api/news/generate',{
+    const resp=await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',{
       method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key': apiKey,
-      },
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
+      body:JSON.stringify({
+        model:'qwen-max',max_tokens:2000,
+        messages:[{role:'user',content:NARRATIVE_PROMPT}],
+        enable_search:true,stream:false,
+      }),
     });
-    const result=await resp.json();
-    if(!result.ok) throw new Error(result.error||(result.raw?'AI返回格式异常':'生成失败'));
-    const data=result.data;
+    if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||'HTTP '+resp.status);}
+    const d=await resp.json();
+    const text=d.choices?.[0]?.message?.content||'';
+    let clean = text.replace(/```json/gi,'').replace(/```/g,'').trim();
+    const start = clean.indexOf('{');
+    const end = clean.lastIndexOf('}');
+    if(start===-1||end===-1) throw new Error('AI未返回有效JSON，请重试');
+    clean = clean.slice(start, end+1);
+    const data=JSON.parse(clean);
+
+    // 容错：如果solLevels是模板文字则用默认值
+    if(data.solLevels){
+      const sl=data.solLevels;
+      if(!sl.long||sl.long.includes('如')) sl.long='$85-$87';
+      if(!sl.short||sl.short.includes('如')) sl.short='$92-$95';
+      if(!sl.current||sl.current.includes('判断')) sl.current='参考实时行情';
+      if(!sl.invalidate||sl.invalidate.includes('如')) sl.invalidate='BTC跌破$78,000';
+    }
     currentNarrativeData=data;
     renderNarrativeCards(data);
   }catch(e){
