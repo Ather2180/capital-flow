@@ -299,8 +299,8 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Noto San
         <div class="price-val" id="xauPrice">--</div>
         <div class="price-chg fl" id="xauChange">加载中</div>
       </div>
-      <div class="price-card" onclick="toggleChart('JZT','JZT/USD')">
-        <div class="price-cat">Polygon · Uniswap ▾</div>
+      <div class="price-card">
+        <div class="price-cat">Polygon · Uniswap</div>
         <div class="price-name">JZT/USD</div>
         <div class="price-val" id="jztPrice">--</div>
         <div class="price-chg fl" id="jztChange">加载中</div>
@@ -932,28 +932,18 @@ async function loadChart(symbol, interval){
   const body = document.getElementById('chartBody');
   const loading = document.getElementById('chartLoading');
   loading.style.display='flex';
-  loading.textContent='加载中...';
   if(lwChart){lwChart.remove();lwChart=null;candleSeries=null;}
 
   try{
-    // JZT用GeckoTerminal接口，其他用Bybit接口
-    let url;
-    if(symbol==='JZT'){
-      url=`https://vps.meihuaqianwen.com/api/jzt/kline?interval=${interval}&limit=300`;
-    } else {
-      url=`https://vps.meihuaqianwen.com/api/kline?symbol=${symbol}&interval=${interval}&limit=1000`;
-    }
-    const r = await fetch(url);
+    const r = await fetch(
+      `https://vps.meihuaqianwen.com/api/kline?symbol=${symbol}&interval=${interval}&limit=1000`
+    );
     const d = await r.json();
     if(!d.ok) throw new Error(d.error||'数据错误');
 
     loading.style.display='none';
 
     // 创建图表
-    const priceFormat = symbol==='JZT'
-      ? {type:'price', precision:4, minMove:0.0001}
-      : {type:'price', precision:2, minMove:0.01};
-
     lwChart = LightweightCharts.createChart(body, {
       width: body.clientWidth,
       height: 220,
@@ -981,7 +971,6 @@ async function loadChart(symbol, interval){
       borderDownColor:'#E24B4A',
       wickUpColor:'#1D9E75',
       wickDownColor:'#E24B4A',
-      priceFormat,
     });
 
     candleSeries.setData(d.candles.map(c=>({
@@ -989,14 +978,12 @@ async function loadChart(symbol, interval){
       open: c.o, high: c.h, low: c.l, close: c.c,
     })));
 
-    // EMA线：JZT只显示EMA26，其他显示26/144/610
-    const emaConfigs = symbol==='JZT'
-      ? [{period:26, color:'#f0c040', lineWidth:1}]
-      : [
-          {period:26,  color:'#f0c040', lineWidth:1},
-          {period:144, color:'#4a9eff', lineWidth:1},
-          {period:610, color:'#ff7c4a', lineWidth:1},
-        ];
+    // EMA线：26（短）/ 144（中）/ 610（长）
+    const emaConfigs = [
+      {period:26,  color:'#f0c040', lineWidth:1},
+      {period:144, color:'#4a9eff', lineWidth:1},
+      {period:610, color:'#ff7c4a', lineWidth:1},
+    ];
     for(const cfg of emaConfigs){
       if(d.candles.length < cfg.period) continue;
       const emaSeries = lwChart.addLineSeries({
