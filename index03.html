@@ -97,9 +97,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Noto San
 
 /* 3. 实时行情 */
 .price-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.price-card{background:var(--s1);border:1px solid var(--bd);border-radius:5px;padding:10px 12px;cursor:pointer;transition:border-color .15s}
-.price-card:active{border-color:var(--bd2)}
-.price-card.has-chart{grid-column:1/-1;cursor:default}
+.price-card{background:var(--s1);border:1px solid var(--bd);border-radius:5px;padding:10px 12px}
 .price-cat{font-size:9px;color:var(--tx3);letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:2px}
 .price-name{font-size:11px;color:var(--tx2);margin-bottom:5px}
 .price-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:500;color:var(--tx);line-height:1}
@@ -109,35 +107,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Noto San
 .price-card.full{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:0}
 .fr-item{padding:10px 12px;border-right:1px solid var(--bd)}
 .fr-item:last-child{border-right:none}
-
-/* K线图 */
-.chart-wrap{
-  grid-column:1/-1;
-  background:var(--s1);border:1px solid var(--bd);border-radius:5px;
-  overflow:hidden;
-}
-.chart-hd{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 12px;border-bottom:1px solid var(--bd);
-}
-.chart-title{font-size:13px;font-weight:500;color:var(--tx)}
-.chart-controls{display:flex;align-items:center;gap:6px}
-.chart-period{
-  font-family:'JetBrains Mono',monospace;font-size:11px;
-  background:transparent;border:1px solid var(--bd2);color:var(--tx3);
-  padding:3px 8px;border-radius:2px;cursor:pointer;transition:all .15s;
-}
-.chart-period.active{border-color:var(--on);color:var(--on)}
-.chart-close{
-  font-family:'JetBrains Mono',monospace;font-size:12px;
-  background:transparent;border:none;color:var(--tx3);
-  cursor:pointer;padding:3px 6px;
-}
-.chart-body{height:220px;position:relative}
-.chart-loading{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tx3);
-}
 
 /* 4. 核心指标 */
 .mcard{background:var(--s1);border:1px solid var(--bd);border-radius:5px;padding:11px 12px;margin-bottom:8px;cursor:pointer}
@@ -274,21 +243,21 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Noto San
   <!-- 3. 实时行情 -->
   <div class="section">
     <div class="sec-label">实时行情 · Bybit · <span id="updateTime" style="color:var(--tx2);font-size:11px;letter-spacing:0;text-shadow:none;font-weight:400">加载中...</span></div>
-    <div class="price-grid" id="priceGrid">
-      <div class="price-card" onclick="toggleChart('BTCUSDT','BTC/USDT')">
-        <div class="price-cat">永续合约 ▾</div>
+    <div class="price-grid">
+      <div class="price-card">
+        <div class="price-cat">永续合约</div>
         <div class="price-name">BTC/USDT</div>
         <div class="price-val" id="btcPrice">--</div>
         <div class="price-chg fl" id="btcChange">加载中</div>
       </div>
-      <div class="price-card" onclick="toggleChart('SOLUSDT','SOL/USDT')">
-        <div class="price-cat">永续合约 ▾</div>
+      <div class="price-card">
+        <div class="price-cat">永续合约</div>
         <div class="price-name">SOL/USDT</div>
         <div class="price-val" id="solPrice">--</div>
         <div class="price-chg fl" id="solChange">加载中</div>
       </div>
-      <div class="price-card" onclick="toggleChart('ETHUSDT','ETH/USDT')">
-        <div class="price-cat">永续合约 ▾</div>
+      <div class="price-card">
+        <div class="price-cat">永续合约</div>
         <div class="price-name">ETH/USDT</div>
         <div class="price-val" id="ethPrice">--</div>
         <div class="price-chg fl" id="ethChange">加载中</div>
@@ -305,24 +274,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Noto San
         <div class="price-val" id="jztPrice">--</div>
         <div class="price-chg fl" id="jztChange">加载中</div>
       </div>
-
-      <!-- K线图容器（动态插入） -->
-      <div class="chart-wrap" id="chartWrap" style="display:none">
-        <div class="chart-hd">
-          <span class="chart-title" id="chartTitle">--</span>
-          <div class="chart-controls">
-            <button class="chart-period active" onclick="changeInterval('15')" id="p15">15m</button>
-            <button class="chart-period" onclick="changeInterval('60')" id="p60">1H</button>
-            <button class="chart-period" onclick="changeInterval('240')" id="p240">4H</button>
-            <button class="chart-period" onclick="changeInterval('D')" id="pD">1D</button>
-            <button class="chart-close" onclick="closeChart()">✕</button>
-          </div>
-        </div>
-        <div class="chart-body" id="chartBody">
-          <div class="chart-loading" id="chartLoading">加载中...</div>
-        </div>
-      </div>
-
       <div class="price-card full">
         <div class="fr-item">
           <div class="price-cat">资金费率</div>
@@ -865,117 +816,6 @@ async function fetchRealtime(){
 // 页面加载时同时拉取行情和新闻
 fetchRealtime();
 fetchNews();
-
-// ── K线图 ──
-let lwChart = null;
-let candleSeries = null;
-let currentSymbol = null;
-let currentInterval = '15';
-
-// 动态加载lightweight-charts
-function loadLWCharts(cb){
-  if(window.LightweightCharts){cb();return;}
-  const s=document.createElement('script');
-  s.src='https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js';
-  s.onload=cb;
-  document.head.appendChild(s);
-}
-
-async function toggleChart(symbol, title){
-  const wrap = document.getElementById('chartWrap');
-  // 同一个资产再点一次则关闭
-  if(currentSymbol===symbol && wrap.style.display!=='none'){
-    closeChart(); return;
-  }
-  currentSymbol = symbol;
-  document.getElementById('chartTitle').textContent = title + ' · K线';
-  wrap.style.display = 'block';
-
-  // 把chart容器移到资金费率卡片前面
-  const grid = document.getElementById('priceGrid');
-  const frCard = grid.querySelector('.price-card.full');
-  grid.insertBefore(wrap, frCard);
-
-  loadLWCharts(()=>loadChart(symbol, currentInterval));
-}
-
-function closeChart(){
-  document.getElementById('chartWrap').style.display='none';
-  currentSymbol = null;
-  if(lwChart){lwChart.remove();lwChart=null;candleSeries=null;}
-}
-
-function changeInterval(interval){
-  currentInterval = interval;
-  document.querySelectorAll('.chart-period').forEach(b=>b.classList.remove('active'));
-  const idMap={'15':'p15','60':'p60','240':'p240','D':'pD'};
-  const el=document.getElementById(idMap[interval]);
-  if(el) el.classList.add('active');
-  if(currentSymbol) loadChart(currentSymbol, interval);
-}
-
-async function loadChart(symbol, interval){
-  const body = document.getElementById('chartBody');
-  const loading = document.getElementById('chartLoading');
-  loading.style.display='flex';
-  if(lwChart){lwChart.remove();lwChart=null;candleSeries=null;}
-
-  try{
-    const r = await fetch(
-      `https://vps.meihuaqianwen.com/api/kline?symbol=${symbol}&interval=${interval}&limit=100`
-    );
-    const d = await r.json();
-    if(!d.ok) throw new Error(d.error||'数据错误');
-
-    loading.style.display='none';
-
-    // 创建图表
-    lwChart = LightweightCharts.createChart(body, {
-      width: body.clientWidth,
-      height: 220,
-      layout:{
-        background:{color:'#0a1014'},
-        textColor:'#7a96a0',
-      },
-      grid:{
-        vertLines:{color:'#182028'},
-        horzLines:{color:'#182028'},
-      },
-      crosshair:{mode:LightweightCharts.CrosshairMode.Normal},
-      rightPriceScale:{borderColor:'#182028'},
-      timeScale:{
-        borderColor:'#182028',
-        timeVisible:true,
-        secondsVisible:false,
-      },
-    });
-
-    candleSeries = lwChart.addCandlestickSeries({
-      upColor:'#1D9E75',
-      downColor:'#E24B4A',
-      borderUpColor:'#1D9E75',
-      borderDownColor:'#E24B4A',
-      wickUpColor:'#1D9E75',
-      wickDownColor:'#E24B4A',
-    });
-
-    candleSeries.setData(d.candles.map(c=>({
-      time: c.t/1000,
-      open: c.o, high: c.h, low: c.l, close: c.c,
-    })));
-
-    lwChart.timeScale().fitContent();
-
-    // 响应式resize
-    const ro = new ResizeObserver(()=>{
-      if(lwChart) lwChart.applyOptions({width:body.clientWidth});
-    });
-    ro.observe(body);
-
-  }catch(e){
-    loading.textContent='加载失败：'+e.message;
-  }
-}
 
 /* 粒子流场 */
 const cv2=document.getElementById('flowCanvas');
