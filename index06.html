@@ -299,72 +299,11 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Noto San
         <div class="price-val" id="xauPrice">--</div>
         <div class="price-chg fl" id="xauChange">加载中</div>
       </div>
-      <div class="price-card" onclick="toggleJztDetail()" id="jztCard">
+      <div class="price-card" onclick="toggleChart('JZT','JZT/USD')">
         <div class="price-cat">Polygon · Uniswap ▾</div>
         <div class="price-name">JZT/USD</div>
         <div class="price-val" id="jztPrice">--</div>
         <div class="price-chg fl" id="jztChange">加载中</div>
-      </div>
-
-      <!-- JZT详情面板 -->
-      <div id="jztDetail" style="display:none;grid-column:1/-1;background:var(--s1);border:1px solid var(--bd);border-radius:5px;overflow:hidden">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--bd);background:var(--s2)">
-          <span style="font-size:14px;font-weight:500;color:var(--tx)">JZT · 链上数据</span>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button onclick="toggleChart('JZT','JZT/USD');event.stopPropagation()" style="font-family:var(--mono);font-size:11px;background:var(--acc-dim);border:1px solid var(--acc);color:var(--acc);padding:3px 10px;border-radius:2px;cursor:pointer">K线图</button>
-            <button onclick="toggleJztDetail()" style="font-family:var(--mono);font-size:12px;background:transparent;border:none;color:var(--tx3);cursor:pointer">✕</button>
-          </div>
-        </div>
-        <div style="padding:12px 14px">
-          <!-- 第一行：市值/FDV/流动性 -->
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
-            <div style="background:var(--bg);border-radius:4px;padding:8px 10px">
-              <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);margin-bottom:3px">市值</div>
-              <div style="font-family:var(--mono);font-size:14px;font-weight:500;color:var(--tx)" id="jztMcap">--</div>
-            </div>
-            <div style="background:var(--bg);border-radius:4px;padding:8px 10px">
-              <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);margin-bottom:3px">流动性</div>
-              <div style="font-family:var(--mono);font-size:14px;font-weight:500;color:var(--tx)" id="jztLiq">--</div>
-            </div>
-            <div style="background:var(--bg);border-radius:4px;padding:8px 10px">
-              <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);margin-bottom:3px">24H成交量</div>
-              <div style="font-family:var(--mono);font-size:14px;font-weight:500;color:var(--tx)" id="jztVol">--</div>
-            </div>
-          </div>
-          <!-- 第二行：价格变化 -->
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
-            <div style="background:var(--bg);border-radius:4px;padding:8px 10px">
-              <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);margin-bottom:3px">1H涨跌</div>
-              <div style="font-family:var(--mono);font-size:14px;font-weight:500" id="jztChg1h">--</div>
-            </div>
-            <div style="background:var(--bg);border-radius:4px;padding:8px 10px">
-              <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);margin-bottom:3px">6H涨跌</div>
-              <div style="font-family:var(--mono);font-size:14px;font-weight:500" id="jztChg6h">--</div>
-            </div>
-            <div style="background:var(--bg);border-radius:4px;padding:8px 10px">
-              <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);margin-bottom:3px">24H涨跌</div>
-              <div style="font-family:var(--mono);font-size:14px;font-weight:500" id="jztChg24h">--</div>
-            </div>
-          </div>
-          <!-- 第三行：买卖笔数 -->
-          <div style="background:var(--bg);border-radius:4px;padding:10px 12px">
-            <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);margin-bottom:8px">交易笔数（买入 / 卖出）</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-              <div>
-                <div style="font-size:10px;color:var(--tx3);margin-bottom:3px">1小时</div>
-                <div style="font-family:var(--mono);font-size:13px" id="jztTxns1h">--</div>
-              </div>
-              <div>
-                <div style="font-size:10px;color:var(--tx3);margin-bottom:3px">6小时</div>
-                <div style="font-family:var(--mono);font-size:13px" id="jztTxns6h">--</div>
-              </div>
-              <div>
-                <div style="font-size:10px;color:var(--tx3);margin-bottom:3px">24小时</div>
-                <div style="font-family:var(--mono);font-size:13px" id="jztTxns24h">--</div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- K线图容器（动态插入） -->
@@ -909,15 +848,10 @@ async function fetchRealtime(){
         if(jzt.ok && jzt.price){
           const price=parseFloat(jzt.price);
           document.getElementById('jztPrice').textContent='$'+price.toFixed(4);
-          const chg=parseFloat(jzt.priceChange?.h24)||0;
+          const chg=parseFloat(jzt.change24h)||0;
           const chgEl=document.getElementById('jztChange');
           chgEl.textContent=(chg>=0?'+':'')+chg.toFixed(2)+'%';
           chgEl.className='price-chg '+(chg>=0?'up':'dn');
-          // 保存完整数据供详情面板使用
-          jztDetailData = jzt;
-          if(document.getElementById('jztDetail').style.display!=='none'){
-            renderJztDetail(jzt);
-          }
         }
       }catch(e){ console.error('jzt error:',e); }
     }
@@ -933,52 +867,7 @@ async function fetchRealtime(){
 fetchRealtime();
 fetchNews();
 
-// ── JZT详情面板 ──
-let jztDetailData = null;
-
-function toggleJztDetail(){
-  const panel = document.getElementById('jztDetail');
-  const isOpen = panel.style.display !== 'none';
-  if(isOpen){ panel.style.display='none'; return; }
-  panel.style.display='block';
-  // 插入到K线图前面
-  const grid = document.getElementById('priceGrid');
-  const chartWrap = document.getElementById('chartWrap');
-  grid.insertBefore(panel, chartWrap);
-  if(jztDetailData) renderJztDetail(jztDetailData);
-}
-
-function fmtM(n){
-  if(!n) return '--';
-  n = parseFloat(n);
-  if(n >= 1e9) return '$'+(n/1e9).toFixed(2)+'B';
-  if(n >= 1e6) return '$'+(n/1e6).toFixed(2)+'M';
-  if(n >= 1e3) return '$'+(n/1e3).toFixed(1)+'K';
-  return '$'+n.toFixed(0);
-}
-function fmtChg(v){
-  if(v==null) return '--';
-  const el_color = v>=0?'var(--on)':'var(--off)';
-  return `<span style="color:${el_color}">${v>=0?'+':''}${parseFloat(v).toFixed(2)}%</span>`;
-}
-function fmtTxns(t){
-  if(!t) return '--';
-  const buyColor='var(--on)', sellColor='var(--off)';
-  return `<span style="color:${buyColor}">${t.buys}买</span> / <span style="color:${sellColor}">${t.sells}卖</span>`;
-}
-
-function renderJztDetail(d){
-  document.getElementById('jztMcap').textContent = fmtM(d.marketCap);
-  document.getElementById('jztLiq').textContent = fmtM(d.liquidity);
-  document.getElementById('jztVol').textContent = fmtM(d.volume?.h24);
-  document.getElementById('jztChg1h').innerHTML = fmtChg(d.priceChange?.h1);
-  document.getElementById('jztChg6h').innerHTML = fmtChg(d.priceChange?.h6);
-  document.getElementById('jztChg24h').innerHTML = fmtChg(d.priceChange?.h24);
-  document.getElementById('jztTxns1h').innerHTML = fmtTxns(d.txns?.h1);
-  document.getElementById('jztTxns6h').innerHTML = fmtTxns(d.txns?.h6);
-  document.getElementById('jztTxns24h').innerHTML = fmtTxns(d.txns?.h24);
-}
-
+// ── K线图 ──
 let lwChart = null;
 let candleSeries = null;
 let currentSymbol = null;
