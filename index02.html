@@ -581,101 +581,49 @@ function applyData(data){
   }
 
   // ── 核心监控指标卡片动态更新 ──
-
-  // DXY：95-107范围，越高越偏空
+  // DXY
   if(m.dxy){
     const pct=parseFloat(m.dxy.change);
-    const price=parseFloat(m.dxy.price);
-    const barPct=Math.min(100,Math.max(0,(price-95)/12*100));
-    const isRiskOff=pct>=0;
     updateMetricCard('mc-dxy',
-      `${price.toFixed(2)} ${pct>=0?'↑':'↓'}`,
-      isRiskOff?'dn':'up',
-      isRiskOff?'美元走强 · 压制BTC':'美元走弱 · 利好风险资产',
-      barPct, isRiskOff?'off':'on', isRiskOff?'risk-off':'risk-on'
+      `${parseFloat(m.dxy.price).toFixed(2)} ${pct>=0?'↑':'↓'}`,
+      pct>=0?'dn':'up',
+      pct>=0?'美元走强 · 压制BTC':'美元走弱 · 利好风险资产'
     );
   }
-
-  // 美债10Y：3%-6%范围，越高越偏空
+  // 美债10Y
   if(m.us10y){
     const yield10=parseFloat(m.us10y.price);
-    const barPct=Math.min(100,Math.max(0,(yield10-3)/3*100));
-    const isHigh=yield10>4.5;
     updateMetricCard('mc-bond',
-      yield10.toFixed(2)+'% '+(parseFloat(m.us10y.change)>=0?'↑':'↓'),
-      isHigh?'dn':'up',
-      isHigh?'高利率锚 · 压制风险资产':'利率温和 · 风险资产受益',
-      barPct, isHigh?'off':'on', isHigh?'risk-off':'risk-on'
+      yield10.toFixed(2)+'%',
+      yield10>4.5?'dn':'up',
+      yield10>4.5?'高利率锚 · 压制风险资产':'利率温和 · 风险资产受益'
     );
   }
-
-  // 油价：60-120范围，越高通胀压力越大
+  // 油价
   if(m.oil){
-    const price=parseFloat(m.oil.price);
     const pct=parseFloat(m.oil.change);
-    const barPct=Math.min(100,Math.max(0,(price-60)/60*100));
-    const isHigh=price>90;
     updateMetricCard('mc-oil',
-      '$'+price.toFixed(1)+' '+(pct>=0?'↑':'↓'),
-      isHigh?'dn':'up',
-      isHigh?'油价偏高 · 通胀压力':'油价回落 · 通胀压力缓解',
-      barPct, isHigh?'off':'on', isHigh?'risk-off':'risk-on'
+      '$'+parseFloat(m.oil.price).toFixed(1)+' '+(pct>=0?'↑':'↓'),
+      pct>=0?'dn':'up',
+      pct>=0?'战争溢价驱动 · 通胀压力':'油价回落 · 通胀压力缓解'
     );
   }
-
-  // 黄金：3000-6000范围，战争期跌=背离
-  if(m.gold){
-    const price=parseFloat(m.gold.price);
-    const pct=parseFloat(m.gold.change);
-    const barPct=Math.min(100,Math.max(0,(price-3000)/3000*100));
-    updateMetricCard('mc-gold',
-      '$'+price.toFixed(0)+' '+(pct>=0?'↑':'↓'),
-      pct>=0?'up':'dn',
-      pct>=0?'黄金上涨 · 避险情绪':'黄金下跌 · 注意背离信号',
-      barPct, 'n', 'neutral'
-    );
-  }
-
-  // VIX：10-40范围，越高越恐慌
+  // VIX
   if(m.vix){
     const vix=parseFloat(m.vix.price);
-    const barPct=Math.min(100,Math.max(0,(vix-10)/30*100));
-    const isHigh=vix>20;
     updateMetricCard('mc-vix',
-      vix.toFixed(1)+' '+(parseFloat(m.vix.change)>=0?'↑':'↓'),
-      isHigh?'dn':'up',
-      vix>30?'极度恐慌':vix>20?'风险规避情绪偏强':'市场情绪平稳',
-      barPct, isHigh?'off':'on', isHigh?'risk-off':'risk-on'
+      vix.toFixed(1),
+      vix>20?'dn':'up',
+      vix>30?'极度恐慌':vix>20?'风险规避情绪偏强':'市场情绪平稳'
     );
   }
-
-  // 恐惧贪婪：0-100直接用
+  // 恐惧贪婪指数
   if(fg){
-    const isLow=fg.value<40;
-    const isHigh=fg.value>60;
     updateMetricCard('mc-fg',
-      fg.value+' · '+fg.label,
-      isLow?'dn':isHigh?'up':'fl',
-      fg.value<25?'极度恐惧':fg.value<40?'恐惧市场':fg.value>75?'极度贪婪':fg.value>60?'贪婪市场':'市场中性',
-      fg.value, isLow?'off':isHigh?'on':'n', isLow?'risk-off':isHigh?'risk-on':'neutral'
+      fg.value+' '+fg.label,
+      fg.value<40?'dn':fg.value>60?'up':'fl',
+      fg.value<25?'极度恐惧':fg.value<40?'恐惧':fg.value>75?'极度贪婪':fg.value>60?'贪婪':'中性'
     );
-  }
-
-  // BTC资金费率：-0.05%~0.15%范围
-  if(t.BTCUSDT){
-    const bfr=parseFloat(t.BTCUSDT.fundingRate);
-    const barPct=Math.min(100,Math.max(0,(bfr+0.0005)/0.002*100));
-    const isHigh=bfr>0.0005;
-    const isNeg=bfr<0;
-    updateMetricCard('mc-fr',
-      fmtFR(bfr),
-      isHigh?'dn':isNeg?'up':'fl',
-      frSig(bfr),
-      barPct, isHigh?'off':isNeg?'on':'n', isHigh?'risk-off':isNeg?'risk-on':'neutral'
-    );
-    // 同步更新frCardVal（在mc-fg卡片里）
-    document.getElementById('frCardVal').textContent=fmtFR(bfr);
-    document.getElementById('frCardSig').textContent=frSig(bfr);
   }
 
   // ── 综合情绪评分 ──
@@ -701,22 +649,13 @@ function applyData(data){
 }
 
 // 更新指标卡片的值和信号文字
-// barPct: 0-100，进度条宽度；barType: 'off'/'on'/'n'；cardType: 'risk-off'/'risk-on'/'neutral'
-function updateMetricCard(id, valText, valClass, sigText, barPct, barType, cardType){
+function updateMetricCard(id, valText, valClass, sigText){
   const card=document.getElementById(id);
   if(!card)return;
   const valEl=card.querySelector('.mc-val');
   const sigEl=card.querySelector('.mc-sig');
-  const barEl=card.querySelector('.mbar');
   if(valEl){valEl.textContent=valText;valEl.className='mc-val '+valClass;}
   if(sigEl){sigEl.textContent=sigText;}
-  if(barEl&&barPct!=null){
-    barEl.style.width=Math.min(100,Math.max(0,barPct))+'%';
-    barEl.className='mbar bar-'+(barType||'off');
-  }
-  if(cardType){
-    card.className='mcard '+cardType;
-  }
 }
 
 
