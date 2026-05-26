@@ -311,7 +311,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Noto San
         <div class="chart-hd">
           <span class="chart-title" id="chartTitle">--</span>
           <div class="chart-controls">
-            <button class="chart-period" onclick="changeInterval('5')" id="p5">5m</button>
             <button class="chart-period active" onclick="changeInterval('15')" id="p15">15m</button>
             <button class="chart-period" onclick="changeInterval('60')" id="p60">1H</button>
             <button class="chart-period" onclick="changeInterval('240')" id="p240">4H</button>
@@ -909,23 +908,10 @@ function closeChart(){
 function changeInterval(interval){
   currentInterval = interval;
   document.querySelectorAll('.chart-period').forEach(b=>b.classList.remove('active'));
-  const idMap={'5':'p5','15':'p15','60':'p60','240':'p240','D':'pD'};
+  const idMap={'15':'p15','60':'p60','240':'p240','D':'pD'};
   const el=document.getElementById(idMap[interval]);
   if(el) el.classList.add('active');
   if(currentSymbol) loadChart(currentSymbol, interval);
-}
-
-// 计算EMA
-function calcEMA(data, period){
-  const k = 2/(period+1);
-  const result = [];
-  let ema = null;
-  for(const d of data){
-    if(ema===null){ ema=d.c; }
-    else{ ema = d.c*k + ema*(1-k); }
-    result.push({time: d.t/1000, value: parseFloat(ema.toFixed(4))});
-  }
-  return result;
 }
 
 async function loadChart(symbol, interval){
@@ -936,7 +922,7 @@ async function loadChart(symbol, interval){
 
   try{
     const r = await fetch(
-      `https://vps.meihuaqianwen.com/api/kline?symbol=${symbol}&interval=${interval}&limit=1000`
+      `https://vps.meihuaqianwen.com/api/kline?symbol=${symbol}&interval=${interval}&limit=100`
     );
     const d = await r.json();
     if(!d.ok) throw new Error(d.error||'数据错误');
@@ -977,24 +963,6 @@ async function loadChart(symbol, interval){
       time: c.t/1000,
       open: c.o, high: c.h, low: c.l, close: c.c,
     })));
-
-    // EMA线：26（短）/ 144（中）/ 610（长）
-    const emaConfigs = [
-      {period:26,  color:'#f0c040', lineWidth:1},
-      {period:144, color:'#4a9eff', lineWidth:1},
-      {period:610, color:'#ff7c4a', lineWidth:1},
-    ];
-    for(const cfg of emaConfigs){
-      if(d.candles.length < cfg.period) continue;
-      const emaSeries = lwChart.addLineSeries({
-        color: cfg.color,
-        lineWidth: cfg.lineWidth,
-        priceLineVisible: false,
-        lastValueVisible: false,
-        crosshairMarkerVisible: false,
-      });
-      emaSeries.setData(calcEMA(d.candles, cfg.period));
-    }
 
     lwChart.timeScale().fitContent();
 
